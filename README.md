@@ -1,34 +1,60 @@
-# Public-Sector-Data-Strategies
+# Public Sector Data Strategies
 
-A curated, living library of **UK public sector data strategies** — national, departmental, agency, devolved, and local —
-with concise summaries to help public sector **data leaders** benchmark and learn fast.
+**Making data strategy reusable.**  
+An open, insight driven library of **UK public sector data strategies, playbooks, and lessons learned** — helping data leaders compare, learn, and write better strategies.
 
-**Why this repo?**
-- Stop reinventing the wheel: see what exists, learn patterns, and compare approaches.
-- Make curation reusable and community-owned (issues/PRs welcome).
+---
+
+## Purpose
+The goal of this repository is to make it easier for UK public bodies to **learn from existing data strategies** and **apply consistent good practice**.  
+It combines official documents, structured metadata, and practical guides for drafting or refreshing your own strategy.
+
+---
+
+## Who This Is For
+- Chief Data Officers and Heads of Data in UK public bodies  
+- Analysts, policy, and digital teams writing new data or AI strategies  
+- Researchers and academics studying government data governance  
+- Anyone benchmarking maturity or structure across departments  
+
+---
 
 ## Contents
-- `resources/strategies.md` — human-friendly master list (grouped + summarized)
-- `data/strategies.csv` — machine-readable table (title, org, year, link, scope, summary)
-- `.github/ISSUE_TEMPLATE/resource_submission.md` — add a new strategy via issues
-- `CONTRIBUTING.md` — how to contribute (quality bar, curation rules)
-- `scripts/validate.py` — quick CSV checks (required columns, URL format)
 
-## Quick start
-1. Browse **resources/strategies.md** for the curated list.
-2. Want to add/update? Open an issue → **“💡 Strategy Submission”**.
-3. Maintainers will triage, verify the source, and merge updates.
+| Folder | Description |
+|---------|--------------|
+| **resources/** | Curated human-friendly lists of UK and devolved data strategies |
+| **data/** | Machine-readable dataset (`strategies.csv`) with title, org, year, link, and summary |
+| **playbook/** | Practical how-to guides, e.g. `writing_a_data_strategy.md` |
+| **scripts/** | Utility tools like `validate.py` for data checks |
+| **.github/** | Issue and PR templates for community contributions |
 
-## Data fields (CSV)
-- `title` — Official strategy title
-- `organisation` — Department / agency / body
-- `year` — Year of publication
-- `scope` — national / departmental / agency / devolved / local
-- `link` — Official URL
-- `summary` — 1–2 lines in plain English
+---
+
+## How To Use This Repo
+
+1. **Explore** `resources/strategies.md` to view national, departmental, and devolved strategies.  
+2. **Analyse** or filter `data/strategies.csv` for comparison across departments.  
+3. **Draft** or refresh your own strategy using the playbook in `playbooks/writing_a_data_strategy.md`.  
+4. **Contribute** new strategies or updates via Issues → “💡 Strategy Submission”.  
+5. **Discuss** lessons or implementation insights in GitHub Discussions.
+
+---
+
+## Roadmap
+
+- [ ] Add 20–30 departmental strategies (2025 refresh)  
+- [ ] Extract recurring insights into `resources/meta_lessons.md`  
+- [ ] Build a lightweight visual dashboard (CSV → charts)  
+- [ ] Enable GitHub Pages summary view
+
+
+## Contributing
+We welcome pull requests and issue submissions for new strategies.  
+Use plain English, official open links, and short summaries. See `CONTRIBUTING.md` for curation rules.
+
+---
 
 ## License
-- Content: MIT (see `LICENSE`).
-- Please link back to this repo when reusing.
-
-— Maintained by the community for public good.
+MIT — open for reuse with attribution.  
+© 2025 Public good project maintained by Bandhu Das.
