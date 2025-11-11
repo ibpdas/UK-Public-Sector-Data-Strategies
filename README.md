@@ -28,11 +28,11 @@ It combines official documents, structured metadata, and practical guides for dr
 
 ## Contents
 
-| Folder | Description |
+| Folder / file | Description |
 |---------|--------------|
-| **resources/** | Curated human-friendly lists of UK and devolved data strategies |
-| **data/** | Machine-readable dataset (`strategies.csv`) with title, org, year, link, and summary |
-| **playbook/** | Practical how-to guides, e.g. `writing_a_data_strategy.md` |
+| **resources/** | Curated list of UK and devolved data strategies |
+| **strategies.csv** | Machine readable dataset (`strategies.csv`) with title, org, year, link, and summary |
+| **playbook/** | Practical guides, e.g. `writing_a_data_strategy.md` |
 | **scripts/** | Utility tools like `validate.py` for data checks |
 | **.github/** | Issue and PR templates for community contributions |
 
