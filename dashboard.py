@@ -46,8 +46,8 @@ def apply_filters(d: pd.DataFrame) -> pd.DataFrame:
 fdf = apply_filters(df)
 
 # ---- Header
-st.title("UK Public-Sector Data Strategies")
-st.write("A lightweight meta-view for public-sector data leaders to compare strategies across years, scopes, and organisations.")
+st.title("UK Public Sector Data Strategies Explorer")
+st.write("A lightweight meta view for public sector data leaders to identify strategies across years, scopes, and organisations.")
 
 # ---- KPIs
 kpi1, kpi2, kpi3 = st.columns(3)
