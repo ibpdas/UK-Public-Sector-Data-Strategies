@@ -1,5 +1,5 @@
 # Streamlit dashboard for: UK Public-Sector Data Strategies
-# Reads data/strategies.csv and provides filters, charts, and a download.
+# Reads strategies.csv and provides filters, charts, and a download.
 # Run: streamlit run dashboard.py
 
 import pandas as pd
