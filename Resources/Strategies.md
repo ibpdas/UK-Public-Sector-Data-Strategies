@@ -1,4 +1,4 @@
-# UK Public-Sector Data Strategies (Curated)
+# UK Public Sector Data Strategies (Curated)
 
 > A living library of data strategies for **public sector data leaders**. Grouped and summarised for quick benchmarking.
 
