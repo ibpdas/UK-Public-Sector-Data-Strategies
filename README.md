@@ -36,7 +36,7 @@ It combines official documents, structured metadata, and practical guides for dr
 
 1. **Explore** `resources/strategies.md` to view national, departmental, and devolved strategies.  
 2. **Analyse** or filter `data/strategies.csv` for comparison across departments.  
-3. **Draft** or refresh your own strategy using the playbook in `playbooks/writing_a_data_strategy.md`.  
+3. **Draft** or refresh your own strategy using the playbook in `playbook/writing_a_data_strategy.md`
 4. **Contribute** new strategies or updates via Issues → “💡 Strategy Submission”.  
 5. **Discuss** lessons or implementation insights in GitHub Discussions.
 
