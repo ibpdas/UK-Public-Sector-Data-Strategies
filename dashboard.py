@@ -1,5 +1,5 @@
 # Streamlit dashboard for: UK Public-Sector Data Strategies
-# Reads data/strategies.csv and provides filters, charts, and a download.
+# Reads strategies.csv and provides filters, charts, and a download.
 # Run: streamlit run dashboard.py
 
 import pandas as pd
@@ -20,7 +20,7 @@ def load_data(path: str) -> pd.DataFrame:
     df["scope"] = df["scope"].str.strip().str.lower()
     return df.dropna(subset=["title", "organisation", "year", "scope"])
 
-df = load_data("data/strategies.csv")
+df = load_data("strategies.csv")
 
 # ---- Sidebar filters
 st.sidebar.header("Filters")
