@@ -1,7 +1,7 @@
 
 # ---------------------------------------------------
-# Public Sector Data Strategy Explorer — Reverted Layout + Embedded About
-# v1.5 – 2025-11-12 13:05 (reverted-tabs)
+# Public Sector Data Strategy Explorer — Hide Datasource in Sidebar
+# v1.6 – 2025-11-12 13:20 (hide-datasource)
 # ---------------------------------------------------
 import os, glob, time, io, json, hashlib
 import pandas as pd
@@ -15,7 +15,7 @@ try:
 except Exception:
     HAS_RAPIDFUZZ = False
 
-APP_VERSION = "v1.5 – 2025-11-12 13:05 (reverted-tabs)"
+APP_VERSION = "v1.6 – 2025-11-12 13:20 (hide-datasource)"
 
 st.set_page_config(page_title="Public Sector Data Strategy Explorer", layout="wide")
 st.markdown(f"💡 **App version:** {APP_VERSION}")
@@ -55,65 +55,19 @@ def load_data_from_bytes(content: bytes, file_hash: str, app_version: str):
     df["year"] = pd.to_numeric(df["year"], errors="coerce")
     return df
 
-# ---------------- Sidebar: data source + reload + filters ----------------
-with st.sidebar:
-    st.subheader("Data source")
-    uploaded = st.file_uploader("Upload a strategies CSV", type=["csv"], key="uploader")
-    st.caption("CSV must include required columns. Use the template if needed.")
-    st.download_button("Download template CSV", data=(
-        "id,title,organisation,org_type,country,year,scope,link,summary,source,date_added\n"
-        "1,Example Strategy,Example Dept,Ministry,UK,2024,National,https://example.com,Short summary...,Official site,2024-11-12\n"
-    ).encode("utf-8"), file_name="strategies_template.csv", mime="text/csv")
+# ---------------- Load initial dataframe ----------------
+# Priority: uploaded in session > strategies.csv > first csv in folder
+csv_files = sorted([f for f in glob.glob('*.csv') if os.path.isfile(f)])
+default_csv = "strategies.csv" if "strategies.csv" in csv_files else (csv_files[0] if csv_files else None)
 
-    st.markdown("---")
-    csv_files = sorted([f for f in glob.glob('*.csv') if os.path.isfile(f)])
-    default_csv = "strategies.csv" if "strategies.csv" in csv_files else (csv_files[0] if csv_files else None)
-    csv_path = None
-    if not uploaded:
-        if csv_files:
-            csv_path = st.selectbox("Or select a CSV from directory", options=csv_files, index=csv_files.index(default_csv) if default_csv else 0, key="csv_select")
-            try:
-                mtime = os.path.getmtime(csv_path)
-                st.caption(f"📄 **{csv_path}** — last modified: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(mtime))}")
-                st.caption(f"🔑 MD5: {file_md5(csv_path)[:12]}…")
-            except Exception:
-                st.caption("📄 File time unknown.")
-        else:
-            st.info("No CSV found. Upload one above or add a file to the directory.")
-
-    cols = st.columns(2)
-    if cols[0].button("🔄 Reload (clear cache)"):
-        st.cache_data.clear()
-        st.rerun()
-    if cols[1].button("🧹 Hard refresh (cache + state)"):
-        st.cache_data.clear()
-        for k in list(st.session_state.keys()):
-            del st.session_state[k]
-        st.rerun()
-
-    st.markdown("---")
-    st.subheader("Filters")
-    # Filters will be populated after df is loaded
-
-# ---------------- Decide data frame ----------------
-df = None
-if uploaded is not None:
-    content = uploaded.read()
-    try:
-        df = load_data_from_bytes(content, bytes_md5(content), APP_VERSION)
-        st.sidebar.success(f"Loaded uploaded CSV — {len(df)} rows (MD5 {bytes_md5(content)[:12]}…)")
-    except Exception as e:
-        st.sidebar.error(f"Upload error: {e}")
-        st.stop()
+if "uploaded_bytes" in st.session_state:
+    content = st.session_state["uploaded_bytes"]
+    df = load_data_from_bytes(content, bytes_md5(content), APP_VERSION)
+elif default_csv:
+    df = load_data_from_path(default_csv, file_md5(default_csv), APP_VERSION)
 else:
-    if not csv_files:
-        st.error("No CSV file available. Please upload one in the sidebar.")
-        st.stop()
-    try:
-        df = load_data_from_path(csv_path, file_md5(csv_path), APP_VERSION)
-    except Exception as e:
-        st.error(f"⚠️ {e}")
-        st.stop()
+    st.error("No CSV detected. Open the Explore tab ▸ Data source & reload, and upload a CSV.")
+    st.stop()
 
 # ---------------- Model: Ten Lenses ----------------
 AXES = [
@@ -152,7 +106,7 @@ def fuzzy(df_in, q, limit=400):
         mask = text.str.contains(q, case=False, na=False)
         return df_in[mask].head(limit)
 
-# ---------------- Charts for Explore ----------------
+# ---------------- Explore charts ----------------
 def render_explore_charts(fdf: pd.DataFrame):
     st.markdown("## 📊 Explore — Landscape & Patterns")
     k1, k2, k3, k4 = st.columns(4)
@@ -238,7 +192,56 @@ tab_explore, tab_lenses, tab_journey, tab_about = st.tabs(
 # 🔎 EXPLORE
 # ====================================================
 with tab_explore:
+    # Keep datasource controls here (not in sidebar)
+    with st.expander("📁 Data source & reload", expanded=False):
+        uploaded = st.file_uploader("Upload a strategies CSV", type=["csv"], key="uploader_main")
+        st.caption("CSV must include required columns. Use the template below if needed.")
+        st.download_button("Download template CSV", data=(
+            "id,title,organisation,org_type,country,year,scope,link,summary,source,date_added\n"
+            "1,Example Strategy,Example Dept,Ministry,UK,2024,National,https://example.com,Short summary...,Official site,2024-11-12\n"
+        ).encode("utf-8"), file_name="strategies_template.csv", mime="text/csv")
+
+        st.markdown("---")
+        csv_files_local = sorted([f for f in glob.glob('*.csv') if os.path.isfile(f)])
+        if csv_files_local:
+            default_csv_local = "strategies.csv" if "strategies.csv" in csv_files_local else csv_files_local[0]
+            sel = st.selectbox("Or select a CSV from directory", options=csv_files_local, index=csv_files_local.index(default_csv_local))
+            if st.button("Load selected file"):
+                st.session_state.pop("uploaded_bytes", None)
+                st.cache_data.clear()
+                try:
+                    df_new = load_data_from_path(sel, file_md5(sel), APP_VERSION)
+                    df = df_new
+                    st.success(f"Loaded {sel} — {len(df)} rows (MD5 {file_md5(sel)[:12]}…)")
+                except Exception as e:
+                    st.error(f"⚠️ {e}")
+        else:
+            st.info("No CSV files found in directory. Upload one above.")
+
+        cols = st.columns(2)
+        if cols[0].button("🔄 Reload (clear cache)"):
+            st.cache_data.clear()
+            st.rerun()
+        if cols[1].button("🧹 Hard refresh (cache + state)"):
+            st.cache_data.clear()
+            for k in list(st.session_state.keys()):
+                del st.session_state[k]
+            st.rerun()
+
+        if uploaded is not None:
+            content = uploaded.read()
+            try:
+                df_new = load_data_from_bytes(content, bytes_md5(content), APP_VERSION)
+                st.session_state["uploaded_bytes"] = content
+                st.cache_data.clear()
+                st.success(f"Loaded uploaded CSV — {len(df_new)} rows (MD5 {bytes_md5(content)[:12]}…)")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Upload error: {e}")
+
+    # Sidebar shows only filters (no datasource)
     with st.sidebar:
+        st.subheader("Filters")
         years = sorted(y for y in df["year"].dropna().unique())
         if years:
             yr = st.slider("Year range", int(min(years)), int(max(years)), (int(min(years)), int(max(years))))
@@ -253,11 +256,15 @@ with tab_explore:
         q = st.text_input("Search title/org/summary")
 
     fdf = df.copy()
-    if yr: fdf = fdf[fdf["year"].between(yr[0], yr[1])]
-    if org_type_sel: fdf = fdf[fdf["org_type"].isin(org_type_sel)]
-    if country_sel: fdf = fdf[fdf["country"].isin(country_sel)]
-    if scope_sel: fdf = fdf[fdf["scope"].isin(scope_sel)]
-    if q:
+    if 'yr' in locals() and yr:
+        fdf = fdf[fdf["year"].between(yr[0], yr[1])]
+    if 'org_type_sel' in locals() and org_type_sel:
+        fdf = fdf[fdf["org_type"].isin(org_type_sel)]
+    if 'country_sel' in locals() and country_sel:
+        fdf = fdf[fdf["country"].isin(country_sel)]
+    if 'scope_sel' in locals() and scope_sel:
+        fdf = fdf[fdf["scope"].isin(scope_sel)]
+    if 'q' in locals() and q:
         fdf = fuzzy(fdf, q)
 
     st.info(f"{len(fdf)} strategies shown")
@@ -281,9 +288,6 @@ with tab_explore:
 with tab_lenses:
     st.subheader("👁️ Set your profiles across the Ten Lenses")
     st.caption("0 = left label • 100 = right label. Use the left column for CURRENT, right for TARGET.")
-
-    st.markdown("_Use the expanders below for practical examples on when to lean left/right._")
-    # Minimal explainer bullets derived from the AXES could be added here if needed.
 
     ensure_sessions()
     colL, colR = st.columns(2)
@@ -368,11 +372,10 @@ with tab_journey:
         st.info("Current and target are identical — no change required.")
 
 # ====================================================
-# ℹ️ ABOUT  — embedded exactly as requested
+# ℹ️ ABOUT  — embedded as requested earlier
 # ====================================================
 with tab_about:
 
-    # --- BEGIN: User-provided About function content ---
     import streamlit as st
     import plotly.graph_objects as go
     import pandas as pd
@@ -443,8 +446,6 @@ Use the **Lenses** tab — each lens includes when to lean left/right and a conc
 
             # --- Closing tip
             st.markdown("> **“Every data strategy is a balancing act — between governance and growth, structure and experimentation, control and creativity.”**")
-    # --- END: User-provided About function content ---
 
-    # Render it into the About tab container
     render_about_tab_full(tab_about, AXES)
 
