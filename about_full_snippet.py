@@ -9,12 +9,9 @@ def render_about_tab_full(container, AXES):
         # --- Purpose & Audience
         st.markdown("""
 ### 🎯 Purpose
-Help public bodies **design, communicate, and iterate** their data strategy by making
-the **key tensions** explicit, comparing **current vs target**, and turning gaps into **prioritised actions**.
 
-The **Public Sector Data Strategy Explorer** helps you understand **how data strategies differ** — in scope, ambition, and governance.  
-It combines a searchable dataset of real strategies with a conceptual framework called **The Ten Lenses of Data Strategy**.
-""")
+The **Public Sector Data Strategy Explorer** helps data leaders understand **how data strategies differ** — in scope, ambition, and delivery. It combines a searchable dataset of real strategies with tools to make the **key tensions** explicit, compare **current vs target**, and turn gaps into **prioritised actions**.
+
 
         st.markdown("""
 ### 👥 Who it's for
