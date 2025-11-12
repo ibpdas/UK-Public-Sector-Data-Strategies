@@ -7,6 +7,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+from about_full_snippet import render_about_tab_full
 
 # Optional fuzzy search
 try:
@@ -179,50 +180,8 @@ def render_lenses_explainer():
 
 # ---------------- TABS ----------------
 tab_explore, tab_types, tab_journey, tab_about = st.tabs(
-    ["ℹ️ About", "🔎 Explore", "👁️ Lenses (Set Profiles)", "🧭 Journey (Compare)"]
+    ["🔎 Explore", "👁️ Lenses (Set Profiles)", "🧭 Journey (Compare)", "ℹ️ About"]
 )
-# ====================================================
-# ℹ️ ABOUT
-# ====================================================
-with tab_about:
-    st.subheader("About this Explorer")
-    st.markdown("""
-This clarity-first version removes **presets** to avoid confusion.
-
-- ⚖️ **Lenses** = the tensions you must balance.  
-- 📊 **Current/Target profiles** = your positions on those tensions.  
-- 🧭 **Journey** = the gap and priority shifts to act on.
-
-Revisit regularly — your strategy should be **living**.
-""")
-
-    st.markdown("### 👁️ Lenses explainer & examples")
-    render_lenses_explainer()
-
-    # Visual overview of lenses
-    st.markdown("### Visual overview")
-    fig = go.Figure()
-    for i, (dim, left, right) in enumerate(AXES):
-        fig.add_trace(go.Bar(x=[50, 50], y=[f"{i+1}. {dim}", f"{i+1}. {dim}"],
-                             orientation='h', marker_color=['#70A9FF','#FFB8B8'],
-                             showlegend=False, hovertext=[left, right]))
-    fig.update_layout(barmode='stack', xaxis=dict(showticklabels=False, range=[0,100]),
-                      height=480, margin=dict(l=20,r=20,t=20,b=20))
-    st.plotly_chart(fig, use_container_width=True)
-
-    st.markdown("""
-**The Ten Lenses**
-1. Abstraction Level — Conceptual ↔ Logical/Physical  
-2. Adaptability — Living ↔ Fixed  
-3. Ambition — Essential ↔ Transformational  
-4. Coverage — Horizontal ↔ Use‑case‑based  
-5. Governance Structure — Ecosystem/Federated ↔ Centralised  
-6. Orientation — Technology‑focused ↔ Value‑focused  
-7. Motivation — Compliance‑driven ↔ Innovation‑driven  
-8. Access Philosophy — Data‑democratised ↔ Controlled access  
-9. Delivery Mode — Incremental ↔ Big Bang  
-10. Decision Model — Data‑informed ↔ Data‑driven
-""")
 
 
 # ====================================================
@@ -456,3 +415,14 @@ with tab_journey:
         st.markdown("\n".join(bullets))
     else:
         st.info("Current and target are identical — no change required.")
+
+
+# ====================================================
+
+# ====================================================
+
+# ====================================================
+# ℹ️ ABOUT
+# ====================================================
+with tab_about:
+    render_about_tab_full(tab_about, AXES)
