@@ -31,7 +31,7 @@ It combines official documents, structured metadata, and practical guides for dr
 
 | Folder | Description |
 |---------|--------------|
-| **Resources** | Curated list of UK and devolved data strategies |
+| **Resources** | Curated list of public sector data strategies |
 | **Data** | Machine readable dataset (`strategies.csv`) with title, org, year, link, and summary |
 | **Playbook** | Practical guides, e.g. `writing_a_data_strategy.md` |
 | **Scripts** | Utility tools like `validate.py` for data checks |
