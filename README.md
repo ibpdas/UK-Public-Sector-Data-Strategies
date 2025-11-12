@@ -9,14 +9,15 @@
 
 **Faster, more impactful data strategies**  
 
-An open, insight driven library of **UK public sector data strategies, playbooks, and lessons learned** — helping data leaders compare, learn, and write better strategies.
+An open, insight driven repository of **UK public sector data strategies, playbooks, and lessons learned** — helping data leaders compare, learn, and write better strategies.
 
 [🏠 Home](README.md) | [📊 Dashboard](https://public-sector-data-strategies.streamlit.app) | [📘 Playbook](playbooks/writing_a_data_strategy.md) | [🧠 Meta Lessons](resources/meta_lessons.md)
 
 ---
 
 ## Purpose
-The goal of this repository is to make it easier for UK public bodies to **learn from existing data strategies** and **apply consistent good practice**.  
+The goal of this repository is to make it easier for UK public bodies to learn from existing data strategies and apply consistent good practice.  
+
 It combines official documents, structured metadata, and practical guides for drafting or refreshing your own strategy.
 
 ---
