@@ -21,7 +21,7 @@ REQUIRED = [
 
 st.set_page_config(page_title="Public Sector Data Strategy Explorer", layout="wide")
 st.title("Public Sector Data Strategy Explorer")
-st.caption("Minimal build: no archetype charts, no explorer table; details include summaries.")
+st.caption("Exploring how governments turn data into public value.")
 
 # --- Data source picker (any CSV in current folder)
 csv_files = sorted([f for f in glob.glob("*.csv") if os.path.isfile(f)])
