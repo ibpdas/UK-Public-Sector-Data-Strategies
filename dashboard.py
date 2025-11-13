@@ -2421,18 +2421,12 @@ with tab_actions:
 # ====================================================
 # ℹ️ ABOUT — your provided content
 # ====================================================
-with tab_about:
 
-    import streamlit as st
-    import plotly.graph_objects as go
-    import pandas as pd
+def render_about_tab():
+    st.subheader("About this Explorer")
 
-    def render_about_tab_full(container, AXES):
-        with container:
-            st.subheader("About this Explorer")
-
-            # --- Purpose & Audience
-            st.markdown("""
+    # --- Purpose & Audience
+    st.markdown("""
 ### 🎯 Purpose
 Help public bodies **design, communicate, and iterate** their data strategy by making
 the **key tensions** explicit, comparing **current vs target**, and turning gaps into **prioritised actions**.
@@ -2441,7 +2435,7 @@ The **Public Sector Data Strategy Explorer** helps you understand **how data str
 It combines a searchable dataset of real strategies with a conceptual framework called **The Ten Lenses of Data Strategy**.
 """)
 
-            st.markdown("""
+    st.markdown("""
 ### 👥 Who it's for
 - **CDOs / Heads of Data** — set direction and align leadership  
 - **Policy & Operations leaders** — frame trade-offs and agree priorities  
@@ -2449,8 +2443,8 @@ It combines a searchable dataset of real strategies with a conceptual framework 
 - **PMOs / Transformation** — track progress and course-correct
 """)
 
-            # --- How to use
-            st.markdown("""
+    # --- How to use
+    st.markdown("""
 ### 🛠️ How to use this tool
 1) **Explore** the landscape of strategies (by year, country, org type) for context.  
 2) **Set profiles** using the **Ten Lenses** sliders to define **Current** and **Target** positions.  
@@ -2459,27 +2453,27 @@ It combines a searchable dataset of real strategies with a conceptual framework 
 5) **Re-assess regularly** — treat your strategy as a **living** thing.
 """)
 
-            # --- Explanation & Public-Sector Examples (Ten Lenses)
-            st.markdown("### 🔍 Explanation and Public-Sector Examples")
-            st.markdown("""
+    # --- Explanation & Public-Sector Examples (Ten Lenses)
+    st.markdown("### 🔍 Explanation and Public-Sector Examples")
+    st.markdown("""
 | # | Lens | Description | Example |
-|---|------|-------------|----------------------|
+|---|------|-------------|---------|
 | **1** | **Abstraction Level** | **Conceptual** strategies define vision and principles; **Logical / Physical** specify architecture and governance. | A national “Data Vision 2030” is conceptual; a departmental “Data Architecture Strategy” is logical/physical. |
 | **2** | **Adaptability** | **Living** evolves with new tech and policy; **Fixed** provides a stable framework. | The UK's AI white paper is living; GDPR is fixed. |
-| **3** | **Ambition** | **Essential** ensures foundations; **Transformational** drives innovation and automation. | DVLA data sharing are essential; Estonia’s X-Road is transformational. |
-| **4** | **Coverage** | **Horizontal** builds maturity across all functions; **Use-case-based** targets exemplar projects. | Government data maturity based maturity improvements vs a use case specific pilot. |
-| **5** | **Governance Structure** | **Ecosystem / Federated** encourages collaboration; **Centralised** ensures uniform control. | Federated, domain and strength based vs a centralised decision making approach. |
+| **3** | **Ambition** | **Essential** ensures foundations; **Transformational** drives innovation and automation. | Strengthening data quality and governance is essential; Estonia’s X-Road is transformational. |
+| **4** | **Coverage** | **Horizontal** builds maturity across all functions; **Use-case-based** targets exemplar projects. | Cross-government maturity improvements vs a single use-case pilot. |
+| **5** | **Governance Structure** | **Ecosystem / Federated** encourages collaboration; **Centralised** ensures uniform control. | Federated, domain-based ownership vs a fully centralised decision-making model. |
 | **6** | **Orientation** | **Technology-focused** emphasises platforms; **Value-focused** prioritises outcomes and citizens. | A cloud migration roadmap vs a policy-impact dashboard. |
-| **7** | **Motivation** | **Compliance-driven** manages risk; **Innovation-driven** creates opportunity. | Privacy by design vs data sharing trusts sandboxes. |
+| **7** | **Motivation** | **Compliance-driven** manages risk; **Innovation-driven** creates opportunity. | Privacy-by-design vs data-sharing sandboxes and trusts. |
 | **8** | **Access Philosophy** | **Democratised** broadens data access; **Controlled** enforces permissions. | Open environmental data portals vs restricted health datasets. |
 | **9** | **Delivery Mode** | **Incremental** iterates and tests; **Big Bang** transforms at once. | Local pilots vs national-scale reform. |
 | **10** | **Decision Model** | **Data-informed** blends human judgment; **Data-driven** relies on analytics/automation. | Evidence-based policymaking vs automated fraud detection. |
 """)
 
-            st.markdown("---")
+    st.markdown("---")
 
-            # --- FAQs
-            st.markdown("""
+    # --- FAQs
+    st.markdown("""
 ### ❓ FAQs
 **Is one side of a lens better?**  
 No — positions reflect context and risk appetite. The goal is **conscious balance**.
@@ -2491,10 +2485,11 @@ That’s good information: pick **three shifts** to start; avoid Big-Bang unless
 Use the **Lenses** tab — each lens includes when to lean left/right and a concrete example.
 """)
 
-            # --- Closing tip
-            st.markdown("> **“Every data strategy is a balancing act — between governance and growth, structure and experimentation, control and creativity.”**")
-
-    render_about_tab_full(tab_about, AXES)
+    # --- Closing tip
+    st.markdown(
+        "> **“Every data strategy is a balancing act — between governance and growth, "
+        "structure and experimentation, control and creativity.”**"
+    )
 
 # ---------------- Footer ----------------
 st.markdown("""
