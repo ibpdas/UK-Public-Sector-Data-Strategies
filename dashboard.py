@@ -832,39 +832,89 @@ with tab_lenses:
                 f"Level: {MATURITY_SCALE[st.session_state['_maturity_scores'][name]]}"
             )
 
-    # Overall maturity summary + radar
+    # Overall maturity summary + pyramid + radar
     m_scores = st.session_state["_maturity_scores"]
     m_avg = sum(m_scores.values()) / len(m_scores) if m_scores else 0
     m_stage = maturity_label(m_avg)
 
+    # Map average (1–5) to nearest level index
+    level_order = ["Beginning", "Emerging", "Learning", "Developing", "Mastering"]
+    # ensure MATURITY_SCALE uses these names
+    # {1:"Beginning", 2:"Emerging", 3:"Learning", 4:"Developing", 5:"Mastering"}
+    avg_level_idx = int(round(m_avg))
+    avg_level_idx = max(1, min(5, avg_level_idx))
+    current_level_name = MATURITY_SCALE[avg_level_idx]
+
     colA, colB = st.columns([1, 1])
+
+    # ----- LEFT: Pyramid (overall level) -----
     with colA:
-        st.metric("Overall maturity", f"{m_avg:.1f} / 5")
+        st.metric("Overall maturity (average)", f"{m_avg:.1f} / 5")
         st.markdown(
             f"<span class='badge'>Stage: {m_stage}</span>",
             unsafe_allow_html=True,
         )
-        st.markdown(
-            "Use a short workshop with policy, operations and data leads to agree these scores, "
-            "capture any disagreements, and revisit over time."
-        )
-        st.markdown(
-            "_Levels follow the government framework naming: **Beginning, Emerging, "
-            "Learning, Developing, Mastering**._"
+
+        # Build a simple horizontal "pyramid" using a bar chart
+        levels_for_plot = list(reversed(level_order))  # show Beginning at bottom
+        widths = [i for i in range(1, 6)]              # 1..5 to get the stepped look
+
+        colors = []
+        for name, width in zip(levels_for_plot, widths[::-1]):  # invert width list
+            # name will be e.g. 'Mastering', 'Developing', ...
+            if name == current_level_name:
+                colors.append(PRIMARY)   # highlight current
+            else:
+                colors.append("#d0d0d0")  # grey for others
+
+        pyramid_df = pd.DataFrame(
+            {
+                "Level": levels_for_plot,
+                "Width": widths,
+                "Color": colors,
+            }
         )
 
+        fig_pyr = px.bar(
+            pyramid_df,
+            x="Width",
+            y="Level",
+            orientation="h",
+            title="Overall maturity level (pyramid view)",
+        )
+        fig_pyr.update_traces(marker_color=pyramid_df["Color"])
+        fig_pyr.update_yaxes(categoryorder="array", categoryarray=levels_for_plot)
+        fig_pyr.update_layout(
+            showlegend=False,
+            xaxis=dict(visible=False),
+            margin=dict(l=60, r=10, t=40, b=20),
+        )
+        st.plotly_chart(fig_pyr, use_container_width=True)
+
+        st.markdown(
+            "_Levels follow the government framework naming: "
+            "**Beginning, Emerging, Learning, Developing, Mastering**._"
+        )
+
+    # ----- RIGHT: Radar (themes profile) -----
     with colB:
         dims_m = list(m_scores.keys())
-        vals01 = [m_scores[d] / 5 for d in dims_m]
+        vals01 = [m_scores[d] / 5 for d in dims_m]  # 1–5 scaled to 0–1
         figm = go.Figure()
         figm.add_trace(radar_trace(vals01, dims_m, "Maturity", opacity=0.6))
         figm.update_layout(
-            polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
-            title="Maturity profile (six themes)",
+            polar=dict(
+                radialaxis=dict(
+                    visible=True,
+                    range=[0, 1],
+                    tickvals=[x / 5 for x in [1, 2, 3, 4, 5]],
+                    ticktext=["1", "2", "3", "4", "5"],
+                )
+            ),
+            title="Maturity profile across six themes (1–5 scale)",
         )
         st.plotly_chart(figm, use_container_width=True)
 
-    st.markdown("---")
 
     # ------- Section 2: Tensions -------
     st.markdown("### 2) Determine strategic tensions (current vs target)")
