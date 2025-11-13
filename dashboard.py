@@ -164,16 +164,6 @@ def load_data_from_path(path: str, file_hash: str, app_version: str):
     return df
 
 
-@st.cache_data(show_spinner=False)
-def load_data_from_bytes(content: bytes, file_hash: str, app_version: str):
-    df = pd.read_csv(io.BytesIO(content)).fillna("")
-    missing = [c for c in REQUIRED if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing columns: {missing}")
-    df["year"] = pd.to_numeric(df["year"], errors="coerce")
-    return df
-
-
 # --- Load initial CSV (default or uploaded) ---
 csv_files = sorted([f for f in glob.glob("*.csv") if os.path.isfile(f)])
 default_csv = (
