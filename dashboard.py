@@ -1163,7 +1163,7 @@ with tab_actions:
 with tab_resources:
     st.subheader("Resources")
 
-    st.markdown("## 🧠 Data Strategy Skills Mapped to Civil Service Behaviours")
+    st.markdown("## Data Strategy Skills Mapped to Civil Service Behaviours")
     st.caption(
         "Use this self-assessment to understand how your data strategy craft maps onto G6/G7 Civil Service expectations."
     )
@@ -1331,7 +1331,7 @@ The app aggregates them to show your strength and stretch across **behaviours**.
     # ------------------------------
     # Heatmap for behaviours
     # ------------------------------
-    st.markdown("### 🔥 Heatmap – Civil Service Behaviours (Current / Target / Gap)")
+    st.markdown("### Heatmap – Civil Service Behaviours (Current / Target / Gap)")
 
     heat = beh_df.set_index("Behaviour")[["Current", "Target", "Gap"]]
 
@@ -1354,7 +1354,7 @@ The app aggregates them to show your strength and stretch across **behaviours**.
     # ------------------------------
     # Top priorities
     # ------------------------------
-    st.markdown("### ⭐ Top 3 Behaviour Growth Priorities")
+    st.markdown("### Top 3 Behaviour Growth Priorities")
 
     top3 = beh_df.head(3)
     for _, row in top3.iterrows():
@@ -1378,7 +1378,7 @@ The app aggregates them to show your strength and stretch across **behaviours**.
     # Mapping overview (for transparency)
     # ------------------------------
     st.markdown("---")
-    st.markdown("### 🧩 How skills map onto Civil Service Behaviours")
+    st.markdown("### How skills map onto Civil Service Behaviours")
 
     map_rows = []
     for beh in CS_BEHAVIOURS:
