@@ -630,7 +630,7 @@ action log with owners, timelines and metrics.
     k1.metric("Rows loaded", len(df))
     k2.metric("Countries", df["country"].nunique() if "country" in df.columns else 0)
     k3.metric("Org types", df["org_type"].nunique() if "org_type" in df.columns else 0)
-    k4.metric("Status - ALHPA "Last updated", time.strftime("%Y-%m-%d", time.localtime()))
+    k4.metric("Status-ALHPA-Last updated", time.strftime("%Y-%m-%d", time.localtime()))
 
     st.markdown("---")
     st.markdown("### How to use this explorer")
