@@ -1311,7 +1311,7 @@ st.markdown(
     """
 ---
 <div class="footer">
-This prototype is created for learning and exploration by Bandhu P. Das. It is not an official service.
+This prototype is created for learning and exploration by Bandhu P. Das
 </div>
 """,
     unsafe_allow_html=True,
