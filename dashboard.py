@@ -1156,7 +1156,7 @@ with tab_journey:
         )
 
     st.markdown(
-        "_Want to go deeper on coherence or pacing? See the **Strategy Kernel** and **Three Horizons** in the Resources tab._"
+        "_Remember strategy is a balancing act_"
     )
 
 # ====================================================
