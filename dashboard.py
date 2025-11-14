@@ -1429,7 +1429,7 @@ public sector data leaders.
     # ====================================================
     # 📚 Strategy & data frameworks (moved to bottom)
     # ====================================================
-       st.subheader("📚 Frameworks & Case Studies")
+    st.subheader("📚 Frameworks & Case Studies")
     st.markdown("Selected readings that inform this dashboard’s metrics and maturity model.")
     resources = [
         ("OECD – Data Governance (Policy Sub-Issue)",
@@ -1473,8 +1473,15 @@ public sector data leaders.
          "https://www.oecd-ilibrary.org/economics/measuring-data-as-an-asset_b840fb01-en",
          "Cross-cutting"),
     ]
+    q = st.text_input("🔍 Search resources")
+    for title, summary, link, level in resources:
+        blob = f"{title} {summary} {level}".lower()
+        if q and q.lower() not in blob:
+            continue
         st.markdown(f"**[{title}]({link})**  \n*{level}* — {summary}")
         st.divider()
+
+st.markdown("---")
 
 # ====================================================
 # ℹ️ ABOUT
