@@ -1464,6 +1464,152 @@ public sector data leaders.
          "https://www.oecd-ilibrary.org/economics/measuring-data-as-an-asset_b840fb01-en") ]
 
 st.markdown("---")
+import streamlit as st
+import plotly.express as px
+import pandas as pd
+
+def render_overview(df):
+    """
+    Overview mockup for the Data Strategy Impact dashboard.
+    df is your main quantitative dataframe.
+    """
+
+    st.title("Data Strategy Impact")
+
+    st.write(
+        "Three-level model to track and communicate data-strategy impact. "
+        "We build organisational maturity and public value by strengthening the foundations within our control."
+    )
+
+    st.markdown("---")
+
+    # Layout: Level 1 and Level 2 on the left, Level 3 on the right
+    left, right = st.columns([2, 1])
+
+    # ---------------- LEVEL 1 ----------------
+    with left:
+        st.subheader("Delivery foundations (Level 1)")
+        st.caption("Direct levers we control")
+
+        st.write("**Five pillars**")
+
+        # Pillar metrics
+        c1, c2, c3, c4, c5 = st.columns(5)
+        # Use last row as demo; change to your own fields if needed
+        latest = df.iloc[-1]
+
+        c1.metric("Governance", f"{latest.get('l1_governance', 7.8):.1f}")
+        c2.metric("Architecture", f"{latest.get('l1_architecture', 7.2):.1f}")
+        c3.metric("Tools", f"{latest.get('l1_tools', 6.5):.1f}")
+        c4.metric("Skills", f"{latest.get('l1_skills', 7.5):.1f}")
+        c5.metric("Community", f"{latest.get('l1_community', 7.9):.1f}")
+
+        # Simple line for composite over time if you have it
+        if "year" in df.columns:
+            # fall back to existing composite if present, else use mean of pillars if you add them later
+            if "l1_pillars_composite" in df.columns:
+                series = df[["year", "l1_pillars_composite"]]
+            else:
+                series = df[["year"]].copy()
+                series["l1_pillars_composite"] = [7.0, 7.2, 7.4, 7.6, 7.8][: len(series)]
+
+            fig = px.line(
+                series,
+                x="year",
+                y="l1_pillars_composite",
+                markers=True,
+                title="Pillar composite trend",
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+        st.markdown("### Quick wins and milestones (qualitative)")
+
+        col_a, col_b = st.columns(2)
+
+        with col_a:
+            st.markdown("**Catalogue v1 live**")
+            st.write("Launched first metadata catalogue with 15 teams onboarded.")
+
+            st.markdown("**Standards adoption**")
+            st.write("Interoperability improved where policy and training were introduced together.")
+
+        with col_b:
+            st.markdown("**Data Owner network**")
+            st.write(
+                "All business areas now have named Data Owners and a quarterly forum in place."
+            )
+            st.button("ENABLE", disabled=True)
+
+        st.markdown("---")
+
+        # ---------------- LEVEL 2 ----------------
+        st.subheader("System maturity (Level 2)")
+        st.caption("Capabilities we enable across the organisation")
+
+        st.markdown("**Government Data Maturity Framework**")
+        st.write(
+            "Example dimensions include Governance, Architecture, Quality, Skills, "
+            "Use and value, and Leadership."
+        )
+
+        if "l2_maturity_index" in df.columns and "year" in df.columns:
+            fig2 = px.line(
+                df,
+                x="year",
+                y="l2_maturity_index",
+                markers=True,
+                title="Maturity index trend",
+            )
+            st.plotly_chart(fig2, use_container_width=True)
+
+        st.button("ENABLE", disabled=True)
+
+    # ---------------- LEVEL 3 ----------------
+    with right:
+        st.subheader("Outcomes (Level 3)")
+        st.caption("Public value we influence")
+
+        latest = df.iloc[-1]
+
+        st.markdown("### Headline results")
+
+        m1, m2 = st.columns(2)
+        m1.metric("Financial savings", "12M dollars")
+        m2.metric("User satisfaction", "72 percent")
+
+        st.markdown("### Efficiency and maturity")
+        if "l2_maturity_index" in df.columns:
+            # fall back to synthetic series if needed
+            demo = df[["year", "l2_maturity_index"]].copy()
+            fig3 = px.scatter(
+                demo,
+                x="year",
+                y="l2_maturity_index",
+                title="Example relationship between maturity and outcomes",
+            )
+            st.plotly_chart(fig3, use_container_width=True)
+
+        st.markdown("### Impact stories and recognition")
+
+        st.markdown("**Flood modelling impact**")
+        st.write(
+            "Shared data avoided duplicate monitoring and enabled estimated savings of "
+            "1.2 million pounds."
+        )
+
+        st.markdown("**Land Data Model**")
+        st.write(
+            "Integrated land-use data model reconciled conflicting demands and supported "
+            "more consistent policy decisions."
+        )
+
+        st.markdown("**GovTech shortlist**")
+        st.write(
+            "Programme shortlisted for a national digital award and recognised for "
+            "transparency and innovation."
+        )
+
+        st.button("INFLUENCE", disabled=True)
 
 # ====================================================
 # ℹ️ ABOUT
