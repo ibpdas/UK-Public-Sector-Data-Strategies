@@ -1463,11 +1463,7 @@ public sector data leaders.
          "Methods linking data maturity to national accounts/productivity.",
          "https://www.oecd-ilibrary.org/economics/measuring-data-as-an-asset_b840fb01-en"),
     ]
-    q = st.text_input("🔍 Search resources")
-    for title, summary, link, level in resources:
-        blob = f"{title} {summary} {level}".lower()
-        if q and q.lower() not in blob:
-            continue
+
         st.markdown(f"**[{title}]({link})**  \n*{level}* — {summary}")
         st.divider()
 
