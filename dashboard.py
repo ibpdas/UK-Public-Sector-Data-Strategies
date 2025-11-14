@@ -1243,10 +1243,10 @@ with tab_journey:
 # ====================================================
 
 with tab_actions:
-    st.subheader("Actions and Export")
+    st.subheader("Actions, projects and export")
     st.caption(
-        "Turn your priority shifts into an action log. "
-        "Estimate impact, assign owners and timelines, then export to CSV."
+        "Turn your priority shifts into a concrete project log. "
+        "Describe the project, estimate impact, assign owners and timelines, then export to CSV."
     )
 
     ensure_sessions()
@@ -1260,9 +1260,11 @@ with tab_actions:
     else:
 
         # ----------------------------------------------------------
-        # ADD IMPACT-THINKING COLUMNS IF MISSING
+        # ADD PROJECT AND IMPACT COLUMNS IF MISSING
         # ----------------------------------------------------------
-        impact_cols = [
+        project_and_impact_cols = [
+            "Project description",
+            "Project type",
             "Impact type",
             "Est annual financial impact (£)",
             "Users affected (volume)",
@@ -1270,11 +1272,24 @@ with tab_actions:
             "Impact notes",
         ]
 
-        for col in impact_cols:
+        for col in project_and_impact_cols:
             if col not in actions_df.columns:
                 actions_df[col] = ""
 
-        # Preset options for "Impact type" (Defra aligned)
+        # Preset options for "Project type"
+        project_type_options = [
+            "Data product",
+            "Data pipeline",
+            "Data platform or tooling",
+            "Standards or governance",
+            "Operational analytics",
+            "Policy data service",
+            "Data quality uplift",
+            "API or integration",
+            "Skills or capability",
+        ]
+
+        # Preset options for "Impact type"
         impact_type_options = [
             "Financial efficiency",
             "User productivity",
@@ -1292,21 +1307,31 @@ with tab_actions:
             "Use rough estimates. The goal in workshops is focus, not precision."
         )
 
-        with st.expander("How to think about impact"):
+        with st.expander("How to describe projects and impact"):
             st.markdown(
                 """
+**Project description**
+- Describe a concrete piece of work, for example:
+  - "Build shared land use data service for policy teams"
+  - "Retire legacy register and migrate to common platform"
+  - "Standardise reference data for water quality reporting"
+
+**Project type**
+- Classify the work, for example data product, pipeline, platform, standards or governance.
+
+**Impact fields**
 - **Impact type**: choose one that best describes the benefit.
-- **Est annual financial impact (£)**: a rough saving or benefit if this succeeds for one year.
-- **Users affected (volume)**: how many analysts, teams, farmers, inspectors or staff feel a difference.
+- **Est annual financial impact (£)**: rough one year saving or benefit if this works.
+- **Users affected (volume)**: staff, farmers, partners or services touched.
 - **Confidence (1 to 5)**: 1 is very uncertain, 5 is very confident.
 - **Impact notes**: one sentence that explains your estimate.
                 """
             )
 
         # ----------------------------------------------------------
-        # EDITABLE ACTION LOG
+        # EDITABLE PROJECT AND ACTION LOG
         # ----------------------------------------------------------
-        st.markdown("### Action log (editable)")
+        st.markdown("### Project and action log (editable)")
 
         edited = st.data_editor(
             actions_df,
@@ -1314,10 +1339,15 @@ with tab_actions:
             use_container_width=True,
             key="actions_editor",
             column_config={
+                "Project type": st.column_config.SelectboxColumn(
+                    "Project type",
+                    options=project_type_options,
+                    help="What kind of project or work item is this"
+                ),
                 "Impact type": st.column_config.SelectboxColumn(
                     "Impact type",
                     options=impact_type_options,
-                    help="Choose the type of impact this action will create",
+                    help="Choose the type of impact this project will create",
                 ),
                 "Est annual financial impact (£)": st.column_config.NumberColumn(
                     "Est annual financial impact (£)",
@@ -1340,19 +1370,172 @@ with tab_actions:
         # Save edited
         st.session_state["_actions_df"] = edited
 
-        # ----------------------------------------------------------
+        # ==========================================================
+        # IMPACT DASHBOARD
+        # ==========================================================
+        st.markdown("### Impact dashboard")
+
+        impact_df = edited.copy()
+
+        # Make sure numeric fields are treated as numbers
+        num_cols = [
+            "Est annual financial impact (£)",
+            "Users affected (volume)",
+            "Confidence (1 to 5)",
+        ]
+        for col in num_cols:
+            if col in impact_df.columns:
+                impact_df[col] = pd.to_numeric(impact_df[col], errors="coerce")
+
+        total_financial = (
+            impact_df["Est annual financial impact (£)"].sum(skipna=True)
+            if "Est annual financial impact (£)" in impact_df.columns
+            else 0
+        )
+        total_users = (
+            impact_df["Users affected (volume)"].sum(skipna=True)
+            if "Users affected (volume)" in impact_df.columns
+            else 0
+        )
+        avg_conf = (
+            impact_df["Confidence (1 to 5)"].mean(skipna=True)
+            if "Confidence (1 to 5)" in impact_df.columns
+            else None
+        )
+
+        col_kpi_1, col_kpi_2, col_kpi_3 = st.columns(3)
+
+        col_kpi_1.metric(
+            "Total estimated annual impact (£)",
+            f"{total_financial:,.0f}",
+        )
+        col_kpi_2.metric(
+            "Users affected (total)",
+            f"{int(total_users):,}",
+        )
+        col_kpi_3.metric(
+            "Average confidence",
+            f"{avg_conf:.1f}" if avg_conf is not None and pd.notna(avg_conf) else "n a",
+        )
+
+        # Impact by type chart
+        if "Impact type" in impact_df.columns:
+            impact_by_type = (
+                impact_df
+                .groupby("Impact type", dropna=True)
+                .agg({
+                    "Est annual financial impact (£)": "sum",
+                    "Users affected (volume)": "sum",
+                })
+                .reset_index()
+            )
+
+            if not impact_by_type.empty:
+                chart = (
+                    alt.Chart(impact_by_type)
+                    .mark_bar()
+                    .encode(
+                        x=alt.X(
+                            "Est annual financial impact (£):Q",
+                            title="Est annual financial impact (£)"
+                        ),
+                        y=alt.Y(
+                            "Impact type:N",
+                            sort="-x",
+                            title="Impact type"
+                        ),
+                        tooltip=[
+                            "Impact type",
+                            "Est annual financial impact (£)",
+                            "Users affected (volume)",
+                        ],
+                    )
+                    .properties(height=300)
+                )
+
+                st.altair_chart(chart, use_container_width=True)
+                st.caption(
+                    "Bars show where estimated financial impact is concentrated across impact types."
+                )
+            else:
+                st.caption("Impact chart will appear once impact types and values are filled in.")
+        else:
+            st.caption("Add an Impact type column to see impact by category.")
+
+        # ==========================================================
+        # QUICK PRIORITISATION VIEW
+        # ==========================================================
+        st.markdown("### Quick prioritisation view")
+
+        view_df = edited.copy()
+
+        col_filter_1, col_filter_2, col_filter_3 = st.columns(3)
+
+        # Filter by project type
+        project_types_present = sorted(
+            [p for p in project_type_options if p in view_df["Project type"].unique()]
+        )
+        project_type_filter = col_filter_1.selectbox(
+            "Filter by project type",
+            options=["All"] + project_types_present,
+            index=0,
+        )
+
+        # Filter by impact type
+        impact_types_present = sorted(
+            [i for i in impact_type_options if i in view_df["Impact type"].unique()]
+        )
+        impact_type_filter = col_filter_2.selectbox(
+            "Filter by impact type",
+            options=["All"] + impact_types_present,
+            index=0,
+        )
+
+        # Sort choice
+        sort_by = col_filter_3.selectbox(
+            "Sort by",
+            options=[
+                "Est annual financial impact (£)",
+                "Users affected (volume)",
+                "Confidence (1 to 5)",
+            ],
+            index=0,
+        )
+
+        # Apply filters
+        if project_type_filter != "All":
+            view_df = view_df[view_df["Project type"] == project_type_filter]
+
+        if impact_type_filter != "All":
+            view_df = view_df[view_df["Impact type"] == impact_type_filter]
+
+        # Ensure sort column is numeric
+        if sort_by in view_df.columns:
+            view_df[sort_by] = pd.to_numeric(view_df[sort_by], errors="coerce")
+            view_df = view_df.sort_values(sort_by, ascending=False)
+
+        st.dataframe(
+            view_df,
+            use_container_width=True,
+        )
+
+        st.caption(
+            "Use this view live in the room to focus on the biggest projects by impact or users affected."
+        )
+
+        # ==========================================================
         # EXPORT
-        # ----------------------------------------------------------
+        # ==========================================================
         csv_bytes = edited.to_csv(index=False).encode("utf-8")
         st.download_button(
             "⬇️ Download actions as CSV",
             data=csv_bytes,
-            file_name="data_strategy_actions.csv",
+            file_name="data_strategy_projects_and_actions.csv",
             mime="text/csv",
         )
 
         st.markdown(
-            "> Tip: paste this table into your programme plan or OKRs to track progress."
+            "> Tip: this table can feed directly into programme plans, OKRs or a delivery roadmap."
         )
 # ====================================================
 # 📚 RESOURCES
