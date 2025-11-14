@@ -1,6 +1,6 @@
-# Data Strategy Impact
+# Data Strategy Impact Dash
 
-Three level model to track and communicate impact from more effective data management and use.
+Three level model to track and communicate impact and prioritise actions.
 
 ---
 
