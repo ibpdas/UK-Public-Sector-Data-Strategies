@@ -1314,8 +1314,6 @@ Named Data Owners in all business areas with a quarterly forum in place.
 ### Government Data Maturity Framework  
 <sub>Example thematic indicators: Uses, Data, Culture, Skills, Tools, Leadership</sub>
 
- *📈Trend 2021-2025*
-
 ---
 
 ## 🟧 INFLUENCING OUTCOMES (INFLUENCE)
@@ -1340,7 +1338,7 @@ Shared data avoided duplicate monitoring and enabled estimated savings of **1.2 
 ### Land Data Model  
 Integrated land use data model reconciled conflicting demands and supported more consistent policy decisions.
 
-### Civil Service Award  
+### Industry Award  
 Programme shortlisted for award and recognised for transparency, collaboration and innovation.
 
 ---
