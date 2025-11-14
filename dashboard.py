@@ -1461,11 +1461,7 @@ public sector data leaders.
          "https://assets.publishing.service.gov.uk/media/6399f93d8fa8f50de138f220/Frontier_Economics_-_value_of_data_assets_-_Dec_2021.pdf"),
         ("OECD – Measuring Data as an Asset (2021)",
          "Methods linking data maturity to national accounts/productivity.",
-         "https://www.oecd-ilibrary.org/economics/measuring-data-as-an-asset_b840fb01-en"),
-    ]
-
-        st.markdown(f"**[{title}]({link})**  \n*{level}* — {summary}")
-        st.divider()
+         "https://www.oecd-ilibrary.org/economics/measuring-data-as-an-asset_b840fb01-en") ]
 
 st.markdown("---")
 
