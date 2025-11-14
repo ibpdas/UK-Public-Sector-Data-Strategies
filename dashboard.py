@@ -1417,70 +1417,149 @@ The app aggregates them to show your strength and stretch across **behaviours**.
 with tab_about:
     st.subheader("About this explorer")
 
-    st.markdown("""
-This explorer helps public bodies plan and manage their data strategy.
+    # Why it exists
+    st.markdown(
+        """
+<div class="info-panel">
+  <strong>Why this exists:</strong> this explorer started as a side-project by a public-sector
+  data strategist to make conversations about <em>data maturity</em> and <em>strategic tensions</em>
+  more concrete. It is a learning and facilitation tool, not a benchmarking product or official view.
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 
-It was created by a data strategist as a side project, originally to make sense of different public sector data strategies.  
-Over time it has grown into a practical tool that supports workshops, discovery work and strategic planning.
+    # Conceptual foundations
+    st.markdown("### Conceptual foundations")
 
-It makes key choices visible, compares where you are now with where you want to be, and turns gaps into a small set of actions you can track.
-""")
+    st.markdown(
+        """
+This prototype combines three main ingredients:
 
-    st.markdown("""
-### Who this tool is for
+1. **Government data maturity themes**  
+   Based on the six themes in the
+   [Data Maturity Assessment for Government framework](https://www.gov.uk/government/publications/data-maturity-assessment-for-government-framework/data-maturity-assessment-for-government-framework-html):  
+   **Uses, Data, Leadership, Culture, Tools, Skills** — each rated from **1 (Beginning)** to **5 (Mastering)**.  
+   The average score gives a simple sense of overall readiness.
 
-- Chief data officers and heads of data  
-- Policy and operations leaders  
-- Analysts and data teams  
-- Programme and transformation offices
-""")
+2. **Ten Lenses of Data Strategy**  
+   A set of paired tensions that describe different ways a data strategy can be configured.  
+   The goal is not to pick a “correct” side, but to make trade-offs explicit, for example:
+"""
+    )
 
-    st.markdown("""
-### What this tool does
+    st.markdown(
+        """
+| # | Lens | Left | Right | What it’s probing |
+|---|------|------|-------|-------------------|
+| 1 | **Abstraction level** | Conceptual | Logical / physical | Vision vs. detailed architecture & governance |
+| 2 | **Adaptability** | Living | Fixed | How often you change the strategy |
+| 3 | **Ambition** | Essential | Transformational | Foundations vs. innovation and automation |
+| 4 | **Coverage** | Horizontal | Use-case-based | Whole-org maturity vs. flagship projects |
+| 5 | **Governance structure** | Ecosystem / federated | Centralised | Distributed ownership vs. central control |
+| 6 | **Orientation** | Technology-focused | Value-focused | Platforms and tools vs. policy / citizen outcomes |
+| 7 | **Motivation** | Compliance-driven | Innovation-driven | Risk management vs. opportunity creation |
+| 8 | **Access philosophy** | Data-democratised | Controlled access | Broad access vs. tight permissions |
+| 9 | **Delivery mode** | Incremental | Big bang | Iterative change vs. large programmes |
+| 10 | **Decision model** | Data-informed | Data-driven | Human-in-the-loop vs. automation |
+"""
+    )
 
-You can use the explorer to:
+    st.markdown(
+        """
+3. **Resources and skills**  
+   The **Resources** tab links these ideas to wider strategy and skills material
+   (for example, strategy “kernels”, horizons, and data-skills maturity lenses),
+   so that insights from this tool can feed into **personal development** as well as **organisation-level planning**.
+"""
+    )
 
-- review how other organisations describe their data strategies  
-- assess your data maturity against six government data themes  
-- position your strategy on ten lenses (for example ambition, governance, delivery mode)  
-- compare current and target positions and identify the largest gaps  
-- create a short action log with owners, timelines and measures
-""")
+    st.markdown("---")
 
-    st.markdown("""
-### The Ten Lenses of Data Strategy
+    # How the tabs fit together (under the hood)
+    st.markdown("### How the pieces fit together")
 
-The ten lenses describe the main choices organisations make in their data strategy.
+    st.markdown(
+        """
+- **Explore** uses a curated dataset of public data strategies (country, org type, scope, year)
+  so you can see patterns and examples.  
+- **Lenses → Maturity** captures a quick, self-reported view of where your organisation sits today
+  across the six government data themes.  
+- **Lenses → Tensions** then lets you set **Current vs Target** positions on the ten lenses
+  (0 = left label, 100 = right label).  
+- **Journey** compares these positions to show gaps and direction of travel, and flags
+  when targets may be misaligned with your current maturity (for example, “big-bang delivery”
+  at low readiness).  
+- **Actions & Export** lets you turn the top shifts into a small, editable action log.  
+- **Resources** connects this view to broader strategy and skills frameworks for further reading and self-development.
+"""
+    )
 
-| Lens | What it describes |
-|------|-------------------|
-| Abstraction level | Whether the strategy focuses on vision and principles, or detailed architecture and governance. |
-| Adaptability | Whether the strategy is reviewed regularly, or kept largely fixed. |
-| Ambition | Whether the focus is on foundations, or more transformational change. |
-| Coverage | Whether the strategy is horizontal across the organisation, or focused on specific use cases. |
-| Governance structure | Whether governance is federated across domains, or centralised. |
-| Orientation | Whether the emphasis is on platforms and tools, or on outcomes and value. |
-| Motivation | Whether work is mainly driven by compliance, or by innovation and opportunity. |
-| Access philosophy | Whether data access is broadly shared, or tightly controlled. |
-| Delivery mode | Whether change is delivered incrementally, or through larger programmes. |
-| Decision model | Whether decisions are mainly data-informed with human judgement, or more automated and data-driven. |
-""")
+    st.markdown("---")
 
-    st.markdown("""
-### How to use it in practice
+    # Methods / calculations
+    st.markdown("### How the calculations work (in plain English)")
 
-You can:
+    st.markdown(
+        """
+- **Maturity scores** are simple averages of your 1–5 ratings; the level
+  (Beginning / Emerging / Learning / Developing / Mastering) is just the rounded average.  
+- **Lens sliders** run from 0–100, with 0 = left label and 100 = right label.  
+- **Change needed** is `target − current`; negative values mean “move left”, positive values mean “move right”.  
+- **Conflicts** are highlighted when there is a big ambition on a lens that usually requires
+  higher maturity (for example, very democratised access or big-bang delivery at low overall readiness).  
+- **Search** defaults to keyword matching; if you enable semantic search locally (with the optional
+  `sentence-transformers` library installed) it will also offer a meaning-based search option.
+"""
+    )
 
-- use the maturity assessment and lenses in workshops with senior leaders  
-- export the action log into programme plans, risk logs or OKRs  
-- revisit your scores after major changes, such as a new strategy, platform or operating model
-""")
+    st.markdown(
+        """
+There are no hidden scores or external benchmarks: everything you see is derived directly
+from the inputs you provide in the app.
+"""
+    )
 
-    st.markdown("""
-### Further information
+    st.markdown("---")
 
-This prototype is for learning and exploration. It is not an official government service or guidance.
-""")
+    # Responsible use / limits
+    st.markdown("### Limits and responsible use")
+
+    st.markdown(
+        """
+- All inputs are **self-reported** and should be treated as prompts, not formal audit evidence.  
+- The tool is **not designed for ranking or comparing** named organisations.  
+- It does not express any **official government position** and should not be quoted as such.  
+- Use the outputs to structure **conversations, workshops and action planning**, alongside
+  other evidence, stakeholder views and professional judgement.
+"""
+    )
+
+    st.markdown("---")
+
+    # Reuse and adaptation
+    st.markdown("### Reuse, forking and adaptation")
+
+    st.markdown(
+        """
+- The code is intended to be **forked and adapted** — for different sectors, countries or frameworks.  
+- If you adapt it, please:  
+  - Be clear about your own **data sources** and **licensing** (for example, OGL or other open licences).  
+  - Keep the **logic transparent**, so users can see how scores and visuals are produced.  
+  - Avoid turning subjective, self-reported scores into hard performance rankings.
+"""
+    )
+
+    st.markdown(
+        """
+<small>
+This explorer is maintained as a community learning tool. It draws on publicly available strategy
+documents and frameworks, and aims to promote more open, reflective conversations about how
+we design and deliver data strategies in the public sector.
+</small>
+"""
+    )
+
 
 # ---------------- Footer ----------------
 st.markdown("""
