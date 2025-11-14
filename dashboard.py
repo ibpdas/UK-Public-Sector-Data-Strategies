@@ -24,7 +24,7 @@ except Exception:
     HAS_EMBED = False
     SentenceTransformer = None
 
-APP_VERSION = "v3.1 – 2025-11-13"
+APP_VERSION = "ALPHA v3.1 – 2025-11-14"
 
 # ---------------- PAGE CONFIG & THEME ----------------
 st.set_page_config(
@@ -707,7 +707,7 @@ Treat the outputs as structured prompts for conversation and planning, not as a 
         """
 1. **Explore** — scan strategies by year, country, org type and scope to build a sense of the landscape.  
 2. **Assess maturity** — agree where you sit today across the six government data maturity themes.  
-3. **Set tensions** — use the Ten Lenses to define your Current vs Target positions, with hints tailored to maturity.  
+3. **Set tensions** — use the ten Lenses to define your Current vs Target positions, with hints tailored to maturity.  
 4. **Review the journey** — focus on the biggest and riskiest shifts; sense-check for over- or under-reach.  
 5. **Capture actions & learn** — use the Actions tab to create an action log, and the Resources tab to deepen your thinking.
 """
@@ -839,7 +839,7 @@ with tab_explore:
         scope_sel = st.multiselect("Scope", scopes, default=scopes)
 
         q = st.text_input(
-            "**Experimental Feature** - Search strategies, see results in Explore tab",
+            "**⚠️ Experimental Feature** - Search strategies, see results in Explore tab",
             placeholder="e.g. 'DEFRA' or 'Data ethics'",
         )
 
