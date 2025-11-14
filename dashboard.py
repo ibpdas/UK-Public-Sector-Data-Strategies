@@ -836,7 +836,7 @@ with st.sidebar:
         st.caption("AI semantic search is not available in this deployment.")
 
 
- if q:
+    if q:
     if search_mode == "AI semantic" and emb_df is not None:
         st.caption("Semantic search active (AI based similarity).")
         fdf = semantic_search(fdf, emb_df, q, top_k=100)
