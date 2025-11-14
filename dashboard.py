@@ -1243,55 +1243,42 @@ with tab_journey:
 # ====================================================
 
 with tab_actions:
-
-    st.subheader("Actions and Export")
+    st.subheader("Actions & Export")
     st.caption(
-        "Convert your priority shifts into a simple action log. "
-        "Assign owners, timelines and metrics, then export everything to CSV."
+        "Turn your top priority shifts into an action log. "
+        "Assign owners, timelines and metrics, then export to CSV."
     )
 
     ensure_sessions()
     actions_df = st.session_state.get("_actions_df", pd.DataFrame())
 
-    # Show message if no actions exist
     if actions_df.empty:
         st.info(
-            "No priority shifts are available yet. "
+            "No priority shifts have been generated yet. "
             "Go to the Journey tab to calculate gaps and priorities."
         )
-
     else:
         st.markdown("### Action log (editable)")
-
-        edited_df = st.data_editor(
+        edited = st.data_editor(
             actions_df,
             num_rows="dynamic",
             use_container_width=True,
-            key="actions_editor"
+            key="actions_editor",
         )
+        st.session_state["_actions_df"] = edited
 
-        # Persist the updated table
-        st.session_state["_actions_df"] = edited_df
-
-        # Export section
-        st.markdown("#### Export")
-
-        csv_bytes = edited_df.to_csv(index=False).encode("utf-8")
-
+        csv_bytes = edited.to_csv(index=False).encode("utf-8")
         st.download_button(
-            label="Download actions as CSV",
+            "⬇️ Download actions as CSV",
             data=csv_bytes,
             file_name="data_strategy_actions.csv",
             mime="text/csv",
-            use_container_width=True,
         )
 
         st.markdown(
-            "<div style='font-size: 0.9rem; color: #6c757d;'>"
-            "Tip: you can paste this table into programme plans, OKRs or delivery roadmaps."
-            "</div>",
-            unsafe_allow_html=True
+            "> Tip: paste this table into your programme plan or OKRs to track progress."
         )
+
 
 # ====================================================
 # 📚 RESOURCES
