@@ -747,10 +747,9 @@ For now, the easiest way to contribute is via LinkedIn or the GitHub repository.
     st.markdown(
         """
 <small>
-This prototype was created by <strong>Bandhu Das</strong>, a public-sector data strategist,
+This prototype was created by <strong>Bandhu Das</strong>, a public sector data strategist,
 as a side project for learning, facilitation and skills development.  
 Connect on LinkedIn: <a href="https://www.linkedin.com/in/bandhu-das" target="_blank">linkedin.com/in/bandhu-das</a>.  
-It is a community-led prototype and is <strong>not</strong> an official government service.
 </small>
 """,
         unsafe_allow_html=True,
