@@ -6,6 +6,7 @@ import glob
 import io
 import time
 import hashlib
+import base64
 
 import numpy as np
 import pandas as pd
@@ -17,6 +18,7 @@ import streamlit as st
 # --- Optional: semantic embeddings (AI search) ---
 try:
     from sentence_transformers import SentenceTransformer
+
     HAS_EMBED = True
 except Exception:
     HAS_EMBED = False
@@ -101,7 +103,7 @@ a:hover {{ color:#003078; }}
 </style>
 <div class="header-bar">
   <h1>Public Sector Data Strategy Explorer</h1>
-  <div class="sub">Real data strategies + faster impact</div>
+  <div class="sub">Real data strategy + Fast impact.</div>
 </div>
 """,
     unsafe_allow_html=True,
@@ -162,16 +164,6 @@ def load_data_from_path(path: str, file_hash: str, app_version: str):
     return df
 
 
-@st.cache_data(show_spinner=False)
-def load_data_from_bytes(content: bytes, file_hash: str, app_version: str):
-    df = pd.read_csv(io.BytesIO(content)).fillna("")
-    missing = [c for c in REQUIRED if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing columns: {missing}")
-    df["year"] = pd.to_numeric(df["year"], errors="coerce")
-    return df
-
-
 # --- Load initial CSV (default or uploaded) ---
 csv_files = sorted([f for f in glob.glob("*.csv") if os.path.isfile(f)])
 default_csv = (
@@ -192,12 +184,30 @@ else:
 
 # Government data maturity themes (CDDO)
 MATURITY_THEMES = [
-    ("Uses", "How you get value out of data. Making decisions, evidencing impact, improving services."),
-    ("Data", "Technical aspects of managing data as an asset: collection, quality, cataloguing, interoperability."),
-    ("Leadership", "How senior and business leaders engage with data: strategy, responsibility, oversight, investment."),
-    ("Culture", "Attitudes to data across the organisation: awareness, openness, security, responsibility."),
-    ("Tools", "The systems and tools you use to store, share and work with data."),
-    ("Skills", "Data and analytical literacy across the organisation, including how people build and maintain those skills."),
+    (
+        "Uses",
+        "How you get value out of data. Making decisions, evidencing impact, improving services.",
+    ),
+    (
+        "Data",
+        "Technical aspects of managing data as an asset: collection, quality, cataloguing, interoperability.",
+    ),
+    (
+        "Leadership",
+        "How senior and business leaders engage with data: strategy, responsibility, oversight, investment.",
+    ),
+    (
+        "Culture",
+        "Attitudes to data across the organisation: awareness, openness, security, responsibility.",
+    ),
+    (
+        "Tools",
+        "The systems and tools you use to store, share and work with data.",
+    ),
+    (
+        "Skills",
+        "Data and analytical literacy across the organisation, including how people build and maintain those skills.",
+    ),
 ]
 
 # Official government levels 1–5
@@ -211,6 +221,9 @@ MATURITY_SCALE = {
 
 
 def maturity_label(avg: float) -> str:
+    """
+    Map the average (1–5) to the nearest official maturity level.
+    """
     idx = int(round(avg))
     idx = max(1, min(5, idx))
     return MATURITY_SCALE[idx]
@@ -236,11 +249,7 @@ def radar_trace(values01, dims, name, opacity=0.6, fill=True):
     r = list(values01) + [values01[0]]
     t = list(dims) + [dims[0]]
     return go.Scatterpolar(
-        r=r,
-        theta=t,
-        name=name,
-        fill="toself" if fill else None,
-        opacity=opacity,
+        r=r, theta=t, name=name, fill="toself" if fill else None, opacity=opacity
     )
 
 
@@ -256,8 +265,12 @@ def ensure_sessions():
             columns=["Priority", "Lens", "Direction", "Owner", "Timeline", "Metric", "Status"]
         )
 
+
 # ---------------- SEARCH HELPERS ----------------
 def simple_search(df_in: pd.DataFrame, query: str) -> pd.DataFrame:
+    """
+    Simple case-insensitive search over key text columns.
+    """
     if not query:
         return df_in
 
@@ -307,6 +320,10 @@ def compute_strategy_embeddings(df_in: pd.DataFrame, app_version: str):
 
 
 def semantic_search(fdf: pd.DataFrame, emb_df: pd.DataFrame, query: str, top_k: int = 100) -> pd.DataFrame:
+    """
+    Semantic search using pre-computed embeddings.
+    Respects current filtered subset fdf by aligning on index.
+    """
     if not query or emb_df is None or fdf.empty:
         return fdf
 
@@ -326,8 +343,13 @@ def semantic_search(fdf: pd.DataFrame, emb_df: pd.DataFrame, query: str, top_k: 
 
 
 emb_df = compute_strategy_embeddings(df, APP_VERSION)
+
 # ---------------- HINTS & CONFLICTS ----------------
 def hint_for_lens(lens_name, maturity_avg, maturity_level_name=None):
+    """
+    Give contextual hints based on the organisation's overall maturity level.
+    Uses government levels: Beginning, Emerging, Learning, Developing, Mastering.
+    """
     level = maturity_level_name or maturity_label(maturity_avg)
     low = level in ("Beginning", "Emerging")
     mid = level in ("Learning", "Developing")
@@ -408,10 +430,15 @@ def hint_for_lens(lens_name, maturity_avg, maturity_level_name=None):
 
 
 def conflict_for_target(lens_name, target_score, maturity_avg):
+    """
+    Flag misalignments between maturity and ambitious targets.
+    target_score is 0–100 toward right label.
+    """
     level = maturity_label(maturity_avg)
     low = level in ("Beginning", "Emerging")
-    highish = level in ("Developing", "Mastering")
+    highish = level in ("Developing", "Mastering")  # treat Learning as middle
 
+    # Low maturity: warn if target is very ambitious/risky
     if low:
         if lens_name == "Delivery Mode" and target_score >= 70:
             return "Big-bang at Beginning/Emerging maturity is high risk — consider phased delivery."
@@ -424,6 +451,7 @@ def conflict_for_target(lens_name, target_score, maturity_avg):
         if lens_name == "Motivation" and target_score >= 70:
             return "Innovation-first without guardrails can raise risk — keep compliance in the loop."
 
+    # High-ish maturity: warn if overly conservative
     if highish:
         if lens_name == "Delivery Mode" and target_score <= 30:
             return "At Developing/Mastering, being too incremental may under-deliver benefits."
@@ -565,9 +593,12 @@ def render_explore_charts(fdf: pd.DataFrame):
 
 # ---------------- TABS SETUP ----------------
 ensure_sessions()
-tab_home, tab_explore, tab_lenses, tab_journey, tab_actions, tab_skills, tab_about = st.tabs(
-    ["Home", "Explore", "Lenses", "Journey", "Actions", "Skills", "About"]
+tab_home, tab_explore, tab_lenses, tab_journey, tab_actions, tab_resources, tab_about = st.tabs(
+    ["Home", "Explore", "Lenses", "Journey", "Actions & Export", "Resources", "About"]
 )
+
+# ...other tab content...
+
 
 # ====================================================
 # 🏠 HOME
@@ -577,7 +608,7 @@ with tab_home:
     st.markdown(
         """
 <div class="info-panel">
-  <strong>What this is:</strong> a thinking and workshop tool for public sector data leaders —
+  <strong>What this is:</strong> a thinking and workshop tool for public-sector data leaders —
   to make <strong>maturity</strong>, <strong>strategic tensions</strong>, and <strong>priority shifts</strong> explicit.
   It will not write your strategy for you, but it will help you have a better conversation about it.
 </div>
@@ -593,7 +624,7 @@ with tab_home:
 <div class="card">
   <h3>Explore</h3>
   <p class="desc">
-    Browse real public sector data strategies by <strong>year</strong>, <strong>country</strong>,
+    Browse real public-sector data strategies by <strong>year</strong>, <strong>country</strong>,
     <strong>organisation type</strong> and <strong>scope</strong>. Use this for context and inspiration,
     not as a complete global catalogue.
   </p>
@@ -607,7 +638,7 @@ with tab_home:
 <div class="card">
   <h3>Lenses &amp; Journey</h3>
   <p class="desc">
-    <strong>Step 1:</strong> Self-diagnose maturity using six government data maturity themes.<br>
+    <strong>Step 1:</strong> Self-diagnose maturity using six government data themes.<br>
     <strong>Step 2:</strong> Set <em>Current vs Target</em> positions across Ten Lenses.<br>
     <strong>Step 3:</strong> Use the Journey tab to see gaps, tensions and potential conflicts.
   </p>
@@ -619,10 +650,11 @@ with tab_home:
         st.markdown(
             """
 <div class="card">
-  <h3>Actions &amp; Skills</h3>
+  <h3>Actions &amp; Resources</h3>
   <p class="desc">
     Turn your top shifts into a simple <strong>action log</strong>, and use the
-    <strong>Skills</strong> tab to connect your insights to personal professional development.
+    <strong>Resources</strong> tab to connect your insights to wider strategy and
+    skills frameworks (government and international).
   </p>
 </div>
 """,
@@ -633,10 +665,10 @@ with tab_home:
 
     # Quick dataset snapshot
     k1, k2, k3, k4 = st.columns(4)
-    k1.metric("Strategies loaded", len(df))
+    k1.metric("Rows loaded", len(df))
     k2.metric("Countries", df["country"].nunique() if "country" in df.columns else 0)
     k3.metric("Org types", df["org_type"].nunique() if "org_type" in df.columns else 0)
-    k4.metric("Last updated", time.strftime("%Y-%m-%d", time.localtime()))
+    k4.metric("Last updated", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
     st.markdown("---")
 
@@ -646,10 +678,10 @@ with tab_home:
         """
 Use this tool when you want to:
 
-- **Prepare or refine a data strategy** — sense check whether your ambitions match your current maturity.
+- **Prepare or refine a data strategy** — sense-check whether your ambitions match your current maturity.
 - **Run a workshop** with leaders or delivery teams (e.g. 60–90 minutes) to surface assumptions and disagreements.
 - **Turn vague direction into clearer shifts** — identify 3–5 practical changes in governance, delivery or access.
-- **Support learning and development** — use the Lenses, maturity themes and skills tab as prompts for discussion and reflection.
+- **Support learning and development** — use the Lenses, maturity themes and Resources tab as prompts for discussion.
 """
     )
 
@@ -677,7 +709,7 @@ Treat the outputs as structured prompts for conversation and planning, not as a 
 2. **Assess maturity** — agree where you sit today across the six government data maturity themes.  
 3. **Set tensions** — use the Ten Lenses to define your Current vs Target positions, with hints tailored to maturity.  
 4. **Review the journey** — focus on the biggest and riskiest shifts; sense-check for over- or under-reach.  
-5. **Capture actions & learn** — use the Actions tab to create an action log, and the Skills tab to deepen your thinking.
+5. **Capture actions & learn** — use the Actions tab to create an action log, and the Resources tab to deepen your thinking.
 """
     )
 
@@ -723,7 +755,6 @@ It is a community-led prototype and is <strong>not</strong> an official governme
 """,
         unsafe_allow_html=True,
     )
-
 # ====================================================
 # 🔎 EXPLORE
 # ====================================================
@@ -785,65 +816,83 @@ with tab_explore:
                 st.rerun()
             except Exception as e:
                 st.error(f"Upload error: {e}")
-with st.sidebar:
-    st.subheader("Filters")
 
-    years = sorted(y for y in df["year"].dropna().unique())
-    if years:
-        yr = st.slider(
-            "Year range",
-            int(min(years)),
-            int(max(years)),
-            (int(min(years)), int(max(years))),
+    with st.sidebar:
+        st.subheader("Filters")
+        years = sorted(y for y in df["year"].dropna().unique())
+        if years:
+            yr = st.slider(
+                "Year range",
+                int(min(years)),
+                int(max(years)),
+                (int(min(years)), int(max(years))),
+            )
+        else:
+            yr = None
+
+        org_types = sorted([v for v in df["org_type"].unique() if v != ""])
+        org_type_sel = st.multiselect("Org type", org_types, default=org_types)
+
+        countries = sorted([v for v in df["country"].unique() if v != ""])
+        country_sel = st.multiselect("Country", countries, default=countries)
+
+        scopes = sorted([v for v in df["scope"].unique() if v != ""])
+        scope_sel = st.multiselect("Scope", scopes, default=scopes)
+
+        q = st.text_input(
+            "Search or describe strategies",
+            placeholder="e.g. 'federated data strategy for small countries' or 'AI ethics framework'",
         )
-    else:
-        yr = None
 
-    org_types = sorted([v for v in df["org_type"].unique() if v != ""])
-    org_type_sel = st.multiselect("Org type", org_types, default=org_types)
+        search_mode = st.radio(
+            "Search mode",
+            options=["Keyword", "AI semantic"],
+            index=1 if emb_df is not None else 0,
+            help="Keyword search looks for exact text matches. AI semantic search finds similar strategies by meaning.",
+        )
+        if emb_df is None and search_mode == "AI semantic":
+            st.caption("Install 'sentence-transformers' to enable AI semantic search.")
 
-    countries = sorted([v for v in df["country"].unique() if v != ""])
-    country_sel = st.multiselect("Country", countries, default=countries)
-
-    scopes = sorted([v for v in df["scope"].unique() if v != ""])
-    scope_sel = st.multiselect("Scope", scopes, default=scopes)
-
-    # Experimental search notice
-    st.markdown(
-        "<p style='font-size:0.85rem; color:#505a5f;'>"
-        "🔍 <em>Experimental feature</em>: Keyword search may miss matches. "
-        "AI semantic search (if enabled) is approximate and may return unpredictable results."
-        "</p>",
-        unsafe_allow_html=True,
-    )
-
-    # The actual search box
-    q = st.text_input(
-        "Search or describe strategies",
-        placeholder="For example: 'federated data strategy' or 'AI ethics framework'",
-    )
-
-    search_mode = st.radio(
-        "Search mode",
-        options=["Keyword", "AI semantic"],
-        index=1 if emb_df is not None else 0,
-        help=(
-            "Keyword search looks for simple text matches. "
-            "AI semantic search tries to find similar strategies by meaning."
-        ),
-    )
-    if emb_df is None and search_mode == "AI semantic":
-        st.caption("AI semantic search is not available in this deployment.")
-
+    fdf = df.copy()
+    if yr:
+        fdf = fdf[fdf["year"].between(yr[0], yr[1])]
+    if org_type_sel:
+        fdf = fdf[fdf["org_type"].isin(org_type_sel)]
+    if country_sel:
+        fdf = fdf[fdf["country"].isin(country_sel)]
+    if scope_sel:
+        fdf = fdf[fdf["scope"].isin(scope_sel)]
 
     if q:
-    if search_mode == "AI semantic" and emb_df is not None:
-        st.caption("Semantic search active (AI based similarity).")
-        fdf = semantic_search(fdf, emb_df, q, top_k=100)
-    else:
-        fdf = simple_search(fdf, q)
-    st.caption(f"{len(fdf)} strategies match your query.")
+        if search_mode == "AI semantic" and emb_df is not None:
+            st.caption("Semantic search active (AI-based similarity).")
+            fdf = semantic_search(fdf, emb_df, q, top_k=100)
+        else:
+            fdf = simple_search(fdf, q)
+        st.caption(f"{len(fdf)} strategies match your query.")
 
+    if fdf.empty:
+        st.warning(
+            f"No strategies match the current filters and search term: **{q or '—'}**. "
+            "Try broadening filters or removing the search text."
+        )
+    else:
+        render_explore_charts(fdf)
+        st.markdown("### Strategy details")
+        for _, r in fdf.iterrows():
+            year_str = int(r["year"]) if pd.notna(r["year"]) else "—"
+            label = f"{r['title']} — {r['organisation']} ({year_str})"
+            if "similarity" in fdf.columns:
+                label += f"  [similarity {r.get('similarity', 0):.2f}]"
+            with st.expander(label):
+                st.write(r["summary"] or "_No summary provided._")
+                meta = st.columns(4)
+                meta[0].write(f"**Org type:** {r['org_type']}")
+                meta[1].write(f"**Country:** {r['country']}")
+                meta[2].write(f"**Scope:** {r['scope']}")
+                meta[3].write(f"**Source:** {r['source']}")
+                if r["link"]:
+                    st.link_button("Open document", r["link"])
 
 # ====================================================
 # 👁️ LENSES (Maturity → Tensions)
@@ -887,12 +936,14 @@ with tab_lenses:
             level_name = MATURITY_SCALE[st.session_state["_maturity_scores"][name]]
             st.caption(f"Level: {level_name}")
 
+    # Overall maturity summary + gauge bar + radar
     m_scores = st.session_state["_maturity_scores"]
     m_avg = sum(m_scores.values()) / len(m_scores) if m_scores else 0
     current_level_name = maturity_label(m_avg)
 
     colA, colB = st.columns([1, 1])
 
+    # LEFT: Gauge-style bar (0–5)
     with colA:
         st.metric("Overall maturity (average)", f"{m_avg:.1f} / 5")
         st.markdown(
@@ -924,6 +975,7 @@ with tab_lenses:
             "_Bar shows your current average position on the government maturity framework._"
         )
 
+    # RIGHT: Radar (themes profile, 1–5 scale)
     with colB:
         dims_m = list(m_scores.keys())
         vals01 = [m_scores[d] / 5 for d in dims_m]
@@ -987,6 +1039,7 @@ with tab_lenses:
 
     colL, colR = st.columns(2)
 
+    # Current profile
     with colL:
         st.markdown("#### Current")
         cols = st.columns(2)
@@ -1006,6 +1059,7 @@ with tab_lenses:
                     f"{left_lbl} ←── {st.session_state['_current_scores'][dim]}% → {right_lbl}"
                 )
 
+    # Target profile + hints/conflicts
     with colR:
         st.markdown("#### Target")
         cols = st.columns(2)
@@ -1041,6 +1095,7 @@ with tab_lenses:
                         unsafe_allow_html=True,
                     )
 
+    # Twin radar: current vs target
     dims = [a[0] for a in AXES]
     cur01 = [st.session_state["_current_scores"][d] / 100 for d in dims]
     tgt01 = [st.session_state["_target_scores"][d] / 100 for d in dims]
@@ -1052,6 +1107,7 @@ with tab_lenses:
         title="Current vs Target — strategic fingerprints",
     )
     st.plotly_chart(fig, use_container_width=True)
+
 # ====================================================
 # 🧭 JOURNEY
 # ====================================================
@@ -1096,6 +1152,7 @@ with tab_journey:
         ["Conflict", "Magnitude"], ascending=[False, False]
     )
 
+    # Narrative summary
     moves_left = sum(1 for v in gap_df["Change needed"] if v < 0)
     moves_right = sum(1 for v in gap_df["Change needed"] if v > 0)
     zero_moves = sum(1 for v in gap_df["Change needed"] if v == 0)
@@ -1112,6 +1169,7 @@ with tab_journey:
         use_container_width=True,
     )
 
+    # bar chart with colour by conflict
     color_series = gap_df["Conflict"].map({True: RED, False: PRIMARY})
     bar = px.bar(
         gap_df.sort_values("Change needed"),
@@ -1123,6 +1181,7 @@ with tab_journey:
     bar.data[0].marker.color = color_series
     st.plotly_chart(bar, use_container_width=True)
 
+    # Priority list
     TOP_N = 3
     top = gap_df.head(TOP_N)
     if len(top):
@@ -1145,6 +1204,7 @@ with tab_journey:
             bullets.append(line)
         st.markdown("\n".join(bullets), unsafe_allow_html=True)
 
+        # Seed actions table for Actions tab
         actions_rows = []
         for i, (_, row) in enumerate(top.iterrows(), start=1):
             d = row["Lens"]
@@ -1176,14 +1236,14 @@ with tab_journey:
         )
 
     st.markdown(
-        "_Want to go deeper on coherence or pacing aligned to personal skills and preferences? See the skills matrix in the Skills tab._"
+        "_You can paste maturity snapshots, lens profiles and action logs from this explorer into your slide decks or business cases._"
     )
 
 # ====================================================
-# ✅ ACTIONS 
+# ✅ ACTIONS & EXPORT
 # ====================================================
 with tab_actions:
-    st.subheader("Actions")
+    st.subheader("Actions & Export")
     st.caption(
         "Turn your top priority shifts into an action log. "
         "Assign owners, timelines and metrics, then export to CSV."
@@ -1220,257 +1280,40 @@ with tab_actions:
         )
 
 # ====================================================
-# 📘 Skills - mapped to Civil Service Behaviours
+# 📚 RESOURCES
 # ====================================================
-with tab_skills:
-    st.subheader("Skills")
-
-    st.markdown("## Data Strategy Skills Mapped to Civil Service Behaviours")
-    st.caption(
-        "Use this self-assessment to understand how your data strategy craft maps onto G6/G7 Civil Service expectations."
-    )
+with tab_resources:
+    st.subheader("Resources — strategy & data frameworks")
 
     st.markdown(
         """
-This view has **two layers**:
+Use these frameworks to deepen the conversation around your data strategy:
 
-- **Data strategy skills** – what you actually *do* as a practitioner.
-- **Civil Service Behaviours** – how those skills *show up* in a public-sector leadership role.
+- **Playing to Win (Lafley & Martin)**  
+  *Where will you play? How will you win?* Use this to sharpen the **strategic choices** that your data work supports.
 
-You rate the **skills**.  
-The app aggregates them to show your strength and stretch across **behaviours**.
+- **Strategy Kernel (Diagnosis → Guiding Policy → Coherent Actions)**  
+  Map your **maturity diagnosis** and **lens choices** into a guiding policy and 5–10 coherent actions.
+
+- **Three Horizons Framework**  
+  Align actions over time:  
+  - Horizon 1: Fix foundations and quick wins  
+  - Horizon 2: Build new capabilities  
+  - Horizon 3: Transform services and models
+
+- **Data Management Body of Knowledge (DAMA-DMBOK)**  
+  Cross-check that your strategy covers key disciplines: data quality, governance, architecture, security, metadata, etc.
+
+- **Government Data Maturity Assessment (CDDO)**  
+  The six themes you’ve used in this tool. Use the official framework for a deeper organisation-wide conversation.
+
+- **Outcome & Value Frameworks (e.g. logic models, theory of change)**  
+  Link data initiatives to **policy outcomes**, not just technology deliverables.
 """
-    )
-
-    # ------------------------------
-    # Data strategy skills (rows you rate)
-    # ------------------------------
-    STRATEGY_SKILLS = [
-        "Problem Framing",
-        "Systems Thinking",
-        "Insight & Sense-making",
-        "Communication & Narrative",
-        "Facilitation & Alignment",
-        "Experimentation & Learning",
-        "Influence & Stakeholder Management",
-        "Strategy Craft",
-        "Data Skills",
-    ]
-
-    # ------------------------------
-    # CS Behaviours (G6/G7)
-    # ------------------------------
-    CS_BEHAVIOURS = [
-        "Seeing the Big Picture",
-        "Making Effective Decisions",
-        "Communicating and Influencing",
-        "Working Together",
-        "Changing and Improving",
-        "Delivering at Pace",
-        "Leadership",
-    ]
-
-    # ------------------------------
-    # Mapping: which skills underpin which behaviours
-    # (you can tweak this later if you disagree with any mapping)
-    # ------------------------------
-    BEHAVIOUR_SKILL_MAP = {
-        "Seeing the Big Picture": [
-            "Problem Framing",
-            "Systems Thinking",
-            "Insight & Sense-making",
-        ],
-        "Making Effective Decisions": [
-            "Problem Framing",
-            "Insight & Sense-making",
-            "Data Skills",
-        ],
-        "Communicating and Influencing": [
-            "Communication & Narrative",
-            "Influence & Stakeholder Management",
-        ],
-        "Working Together": [
-            "Facilitation & Alignment",
-            "Influence & Stakeholder Management",
-        ],
-        "Changing and Improving": [
-            "Experimentation & Learning",
-            "Systems Thinking",
-        ],
-        "Delivering at Pace": [
-            "Strategy Craft",
-            "Experimentation & Learning",
-        ],
-        "Leadership": [
-            "Strategy Craft",
-            "Communication & Narrative",
-            "Facilitation & Alignment",
-        ],
-    }
-
-    SKILL_HELP = {
-        "Problem Framing": "Turning messy problems into clear, answerable questions and options.",
-        "Systems Thinking": "Seeing interdependencies across policy, operations, tech, users and data.",
-        "Insight & Sense-making": "Drawing meaning out of evidence, noise and conflicting signals.",
-        "Communication & Narrative": "Explaining strategy, trade-offs and data stories in plain language.",
-        "Facilitation & Alignment": "Helping diverse stakeholders reach shared understanding and commitment.",
-        "Experimentation & Learning": "Running pilots, tests and iterations; using feedback to adapt.",
-        "Influence & Stakeholder Management": "Building relationships, shaping decisions, managing politics.",
-        "Strategy Craft": "Defining direction, priorities, roadmaps and success measures.",
-        "Data Skills": "Understanding data quality, standards, analytics and AI well enough to lead and challenge.",
-    }
-
-    # ------------------------------
-    # Initialise session state
-    # ------------------------------
-    if "skill_current" not in st.session_state:
-        st.session_state["skill_current"] = {s: 2 for s in STRATEGY_SKILLS}
-    if "skill_target" not in st.session_state:
-        st.session_state["skill_target"] = {s: 4 for s in STRATEGY_SKILLS}
-
-    st.markdown("### 1️⃣ Rate your Data Strategy Skills")
-    st.caption("Scale: 1 = Learning • 2 = Practising • 3 = Advancing • 4 = Leading • 5 = Expert")
-
-    col_cur, col_tgt = st.columns(2)
-
-    with col_cur:
-        st.markdown("#### Current level")
-        for s in STRATEGY_SKILLS:
-            st.session_state["skill_current"][s] = st.slider(
-                s + " (current)",
-                min_value=1,
-                max_value=5,
-                value=st.session_state["skill_current"][s],
-                help=SKILL_HELP.get(s, ""),
-                key=f"cur_skill_{s}",
-            )
-
-    with col_tgt:
-        st.markdown("#### Target level")
-        for s in STRATEGY_SKILLS:
-            st.session_state["skill_target"][s] = st.slider(
-                s + " (target)",
-                min_value=1,
-                max_value=5,
-                value=st.session_state["skill_target"][s],
-                help=SKILL_HELP.get(s, ""),
-                key=f"tgt_skill_{s}",
-            )
-
-    # ------------------------------
-    # Compute behaviour scores from underlying skills
-    # ------------------------------
-    behaviour_rows = []
-    for beh in CS_BEHAVIOURS:
-        skills = BEHAVIOUR_SKILL_MAP.get(beh, [])
-        if not skills:
-            continue
-        cur_vals = [st.session_state["skill_current"][s] for s in skills]
-        tgt_vals = [st.session_state["skill_target"][s] for s in skills]
-        cur_avg = np.mean(cur_vals)
-        tgt_avg = np.mean(tgt_vals)
-        gap = tgt_avg - cur_avg
-        behaviour_rows.append(
-            {
-                "Behaviour": beh,
-                "Current": round(cur_avg, 2),
-                "Target": round(tgt_avg, 2),
-                "Gap": round(gap, 2),
-                "Skills feeding this": ", ".join(skills),
-            }
-        )
-
-    beh_df = pd.DataFrame(behaviour_rows).sort_values("Gap", ascending=False)
-
-    st.markdown("---")
-    st.markdown("### 2️⃣ Behaviours view (derived from your skills)")
-
-    st.dataframe(
-        beh_df[["Behaviour", "Current", "Target", "Gap"]],
-        use_container_width=True,
-    )
-
-    # ------------------------------
-    # Heatmap for behaviours
-    # ------------------------------
-    st.markdown("### Heatmap – Civil Service Behaviours (Current / Target / Gap)")
-
-    heat = beh_df.set_index("Behaviour")[["Current", "Target", "Gap"]]
-
-    fig_heat = px.imshow(
-        heat,
-        x=heat.columns,
-        y=heat.index,
-        labels=dict(x="Measure", y="Behaviour", color="Score"),
-        title="Behaviour maturity heatmap (derived from underlying skills)",
-        color_continuous_scale="RdBu_r",
-        zmin=-4,
-        zmax=5,
-    )
-    fig_heat.update_layout(
-        xaxis_side="top",
-        margin=dict(l=80, r=20, t=60, b=40),
-    )
-    st.plotly_chart(fig_heat, use_container_width=True)
-
-    # ------------------------------
-    # Top priorities
-    # ------------------------------
-    st.markdown("### Top 3 Behaviour Growth Priorities")
-
-    top3 = beh_df.head(3)
-    for _, row in top3.iterrows():
-        beh = row["Behaviour"]
-        gap = row["Gap"]
-        skills_text = row["Skills feeding this"]
-        st.markdown(
-            f"""
-- **{beh}** (gap **+{gap}**)  
-  <div class='info-panel'>
-  Focus skills: {skills_text}.  
-  Suggested next step: pick 1–2 live pieces of work where you can deliberately
-  stretch this behaviour (e.g. leading a cross-team workshop, drafting a strategy paper,
-  or shaping a difficult decision).
-  </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    # ------------------------------
-    # Mapping overview (for transparency)
-    # ------------------------------
-    st.markdown("---")
-    st.markdown("### How skills map onto Civil Service Behaviours")
-
-    map_rows = []
-    for beh in CS_BEHAVIOURS:
-        skills = BEHAVIOUR_SKILL_MAP.get(beh, [])
-        map_rows.append(
-            {
-                "Behaviour": beh,
-                "Underlying skills": ", ".join(skills),
-            }
-        )
-    map_df = pd.DataFrame(map_rows)
-    st.table(map_df)
-
-    # ------------------------------
-    # Download
-    # ------------------------------
-    csv_bytes = beh_df.to_csv(index=False).encode("utf-8")
-    st.download_button(
-        "⬇️ Download behaviour assessment (CSV)",
-        data=csv_bytes,
-        file_name="behaviours_from_data_strategy_skills.csv",
-        mime="text/csv",
     )
 
     st.markdown(
-        """
-> This started as a side-project by a practising public-sector data strategist,  
-> to make strategy and career development more concrete — and a bit more honest —  
-> for people leading data, AI and analytics in government.
-"""
+        "_Public sector resources to be added_"
     )
 
 # ====================================================
@@ -1529,8 +1372,8 @@ This prototype combines three main ingredients:
 
     st.markdown(
         """
-3. **Skills**  
-   The **Skills** tab links these ideas to wider strategy and skills material
+3. **Resources and skills**  
+   The **Resources** tab links these ideas to wider strategy and skills material
    (for example, strategy “kernels”, horizons, and data-skills maturity lenses),
    so that insights from this tool can feed into **personal development** as well as **organisation-level planning**.
 """
@@ -1552,8 +1395,8 @@ This prototype combines three main ingredients:
 - **Journey** compares these positions to show gaps and direction of travel, and flags
   when targets may be misaligned with your current maturity (for example, “big-bang delivery”
   at low readiness).  
-- **Actions** lets you turn the top shifts into a small, editable action log.  
-- **Skills** connects this view to broader strategy and skills frameworks for further reading and self-development.
+- **Actions & Export** lets you turn the top shifts into a small, editable action log.  
+- **Resources** connects this view to broader strategy and skills frameworks for further reading and self-development.
 """
     )
 
@@ -1621,9 +1464,10 @@ we design and deliver data strategies in the public sector.
 </small>
 """
     )
-
-
 # ---------------- Footer ----------------
+st.markdown(
+    """
+---
 st.markdown("""
 ---
 <div class="footer">
@@ -1639,4 +1483,3 @@ All strategy documents are drawn from publicly available sources under the Open 
 </p>
 </div>
 """, unsafe_allow_html=True)
-
