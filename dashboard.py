@@ -608,7 +608,7 @@ with tab_home:
     st.markdown(
         """
 <div class="info-panel">
-  <strong>What this is:</strong> a thinking and workshop tool for public-sector data leaders —
+  <strong>What this is:</strong> A thinking and workshop tool for public sector data leaders —
   to make <strong>maturity</strong>, <strong>strategic tensions</strong>, and <strong>priority shifts</strong> explicit.
   It will not write your strategy for you, but it will help you have a better conversation about it.
 </div>
@@ -624,7 +624,7 @@ with tab_home:
 <div class="card">
   <h3>Explore</h3>
   <p class="desc">
-    Browse real public-sector data strategies by <strong>year</strong>, <strong>country</strong>,
+    Browse real public sector data strategies by <strong>year</strong>, <strong>country</strong>,
     <strong>organisation type</strong> and <strong>scope</strong>. Use this for context and inspiration,
     not as a complete global catalogue.
   </p>
@@ -665,7 +665,7 @@ with tab_home:
 
     # Quick dataset snapshot
     k1, k2, k3, k4 = st.columns(4)
-    k1.metric("Rows loaded", len(df))
+    k1.metric("Strategies loaded", len(df))
     k2.metric("Countries", df["country"].nunique() if "country" in df.columns else 0)
     k3.metric("Org types", df["org_type"].nunique() if "org_type" in df.columns else 0)
     k4.metric("Last updated", time.strftime("%Y-%m-%d", time.localtime()))
