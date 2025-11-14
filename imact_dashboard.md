@@ -10,17 +10,17 @@ Three level model to track and communicate impact from more effective data manag
 ### Five Foundational Pillars (Examples)  
 | Direction | Data | Tools | Skills | Community |
 |-----------|--------------|-------|--------|-----------|
-| **3.8** | **4.2** | **4.5** | **3.5** | **4.9** |
+| **Started** | **Not started** | **Completed** | **Started** | **Started** |
 
-<sub>Trend 2021 → 2025</sub>
+<sub>Timeline Trend 2021 → 2025</sub>
 ---
 
 ### **Quick Wins and Mmilestones (Qualitative)**
 
-**Enterprise Data Catalouge**  
+**MVP Data catalouge**  
 Launched first metadata catalogue with 15 teams onboarded.
 
-**Standards adoption**  
+**Policy adoption**  
 Interoperability improved where policy and training were introduced together.
 
 **Data Owner network**  
@@ -28,7 +28,7 @@ Named Data Owners in all business areas with a quarterly forum in place.
 
 ---
 
-## 🟩 OVERALL MATURITY (ENABLE)
+## 🟩 ENABLING MATURITY (ENABLE)
 **Capabilities we enable across the organisation**
 
 ### Government Data Maturity Framework  
@@ -38,7 +38,7 @@ Named Data Owners in all business areas with a quarterly forum in place.
 
 ---
 
-## 🟧 OUTCOMES (INFLUENCE)
+## 🟧 INFLUENCING OUTCOMES (INFLUENCE)
 **Public value we influence by working across functional and organisational boundaries**
 
 ### Headline results  
@@ -52,7 +52,7 @@ Correlation plot linking maturity and outcome metrics (Theory of Change).
 
 ---
 
-## 🌟 Impact stories and recognition
+## Impact stories and recognition
 
 ### Flood modelling impact  
 Shared data avoided duplicate monitoring and enabled estimated savings of **1.2 million pounds**.
