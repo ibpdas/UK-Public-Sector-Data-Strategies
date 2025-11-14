@@ -1435,50 +1435,30 @@ public sector data leaders.
         """
 Use these frameworks to deepen the conversation around your data strategy:
 
-st.subheader("📚 Frameworks & Case Studies")
-    st.markdown("Selected readings that inform this dashboard’s metrics and maturity model.")
-    resources = [
-        ("OECD – Data Governance (Policy Sub-Issue)",
-         "Policy and governance principles for managing data across its lifecycle.",
-         "https://www.oecd.org/en/topics/sub-issues/data-governance.html",
-         "Level 1 – Delivery Foundations"),
-        ("UK Government – Data Quality Framework (case studies)",
-         "Government approach to improving reliability and usability of data.",
-         "https://www.gov.uk/government/publications/the-government-data-quality-framework/the-government-data-quality-framework-case-studies",
-         "Level 1 – Delivery Foundations"),
-        ("NAO – Improving Government Data: A Guide for Senior Leaders",
-         "Practical guidance on leadership, culture and maturity.",
-         "https://www.nao.org.uk/wp-content/uploads/2022/07/Improving-government-data-a-guide-for-senior-leaders.pdf",
-         "Level 1 – Delivery Foundations"),
-        ("OECD – A Data-Driven Public Sector (2019)",
-         "International maturity model for strategic data use in government.",
-         "https://www.oecd.org/content/dam/oecd/en/publications/reports/2019/05/a-data-driven-public-sector_1c183670/09ab162c-en.pdf",
-         "Level 2 – System Maturity"),
-        ("IMF – Overarching Strategy on Data & Statistics (2018)",
-         "Global strategy for standards, access and capacity building.",
-         "https://www.imf.org/-/media/Files/Publications/PP/2018/pp020918-overarching-strategy-on-data-and-statistics-at-the-fund-in-the-digital-age.ashx",
-         "Level 2 – System Maturity"),
-        ("UK – National Data Strategy M&E Framework",
-         "Indicator suite to monitor progress and maturity across pillars.",
-         "https://www.gov.uk/government/publications/national-data-strategy-monitoring-and-evaluation-update/national-data-strategy-monitoring-and-evaluation-framework",
-         "Level 2 – System Maturity"),
-        ("OECD – Measuring the Value of Data and Data Flows (2022)",
-         "How data creates economic and social value; approaches to valuation.",
-         "https://www.oecd.org/content/dam/oecd/en/publications/reports/2022/12/measuring-the-value-of-data-and-data-flows_2561fe7e/923230a6-en.pdf",
-         "Level 3 – Outcomes & Public Value"),
-        ("HM Treasury – Public Value Framework (2019)",
-         "Assessing how public spending generates measurable value.",
-         "https://assets.publishing.service.gov.uk/media/5c883c32ed915d50b3195be3/public_value_framework_and_supplementary_guidance_web.pdf",
-         "Level 3 – Outcomes & Public Value"),
-        ("Frontier Economics – The Value of Data Assets (2021)",
-         "Estimating the economic value of data assets and use in the UK.",
-         "https://assets.publishing.service.gov.uk/media/6399f93d8fa8f50de138f220/Frontier_Economics_-_value_of_data_assets_-_Dec_2021.pdf",
-         "Level 3 – Outcomes & Public Value"),
-        ("OECD – Measuring Data as an Asset (2021)",
-         "Methods linking data maturity to national accounts/productivity.",
-         "https://www.oecd-ilibrary.org/economics/measuring-data-as-an-asset_b840fb01-en",
-         "Cross-cutting"),
-    ]
+- **Playing to Win (Lafley & Martin)**  
+  *Where will you play? How will you win?* Use this to sharpen the **strategic choices** that your data work supports.
+
+- **Strategy Kernel (Diagnosis → Guiding Policy → Coherent Actions)**  
+  Map your **maturity diagnosis** and **lens choices** into a guiding policy and 5–10 coherent actions.
+
+- **Three Horizons Framework**  
+  Align actions over time:  
+  - Horizon 1: Fix foundations and quick wins  
+  - Horizon 2: Build new capabilities  
+  - Horizon 3: Transform services and models
+
+- **Data Management Body of Knowledge (DAMA-DMBOK)**  
+  Cross-check that your strategy covers key disciplines: data quality, governance, architecture, security, metadata, etc.
+
+- **Outcome & Value Frameworks (logic models, theory of change)**  
+  Link data initiatives to **policy outcomes**, not just technology deliverables.
+"""
+    )
+
+    st.markdown(
+        "_Over time you could link directly to curated public sector strategies, case studies, "
+        "and learning resources for data leaders._"
+    )
 
 # ====================================================
 # ℹ️ ABOUT
@@ -1635,4 +1615,3 @@ All strategy documents are drawn from publicly available sources under the Open 
 </p>
 </div>
 """, unsafe_allow_html=True)
-
