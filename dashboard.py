@@ -810,9 +810,10 @@ with tab_explore:
         scope_sel = st.multiselect("Scope", scopes, default=scopes)
 
         q = st.text_input(
-            "Search or describe strategies",
-            placeholder="e.g. 'federated data strategy for small countries' or 'AI ethics framework'",
-        )
+    " *Experimental feature:* Search is being tested to explore how LLM style semantic retrieval "
+    "might support strategy discovery. Results may be incomplete or unexpected."
+)
+
 
         search_mode = st.radio(
             "Search mode",
