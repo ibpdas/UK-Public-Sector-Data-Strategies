@@ -1465,9 +1465,7 @@ we design and deliver data strategies in the public sector.
 """
     )
 # ---------------- Footer ----------------
-st.markdown(
-    """
----
+
 st.markdown("""
 ---
 <div class="footer">
