@@ -1475,15 +1475,6 @@ public sector data leaders.
          "https://www.oecd-ilibrary.org/economics/measuring-data-as-an-asset_b840fb01-en",
          "Cross-cutting"),
     ]
-    q = st.text_input("🔍 Search resources")
-    for title, summary, link, level in resources:
-        blob = f"{title} {summary} {level}".lower()
-        if q and q.lower() not in blob:
-            continue
-        st.markdown(f"**[{title}]({link})**  \n*{level}* — {summary}")
-        st.divider()
-
-st.markdown("---")
 
 # ====================================================
 # ℹ️ ABOUT
