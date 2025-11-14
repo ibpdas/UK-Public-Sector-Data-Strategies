@@ -678,7 +678,7 @@ with tab_home:
         """
 Use this tool when you want to:
 
-- **Prepare or refine a data strategy** — sense-check whether your ambitions match your current maturity.
+- **Prepare or refine a data strategy** — sense check whether your ambitions match your current maturity.
 - **Run a workshop** with leaders or delivery teams (e.g. 60–90 minutes) to surface assumptions and disagreements.
 - **Turn vague direction into clearer shifts** — identify 3–5 practical changes in governance, delivery or access.
 - **Support learning and development** — use the Lenses, maturity themes and Resources tab as prompts for discussion.
@@ -688,10 +688,10 @@ Use this tool when you want to:
     st.markdown("### When this tool is not designed to be used as")
     st.markdown(
         """
-This is <strong>not</strong> intended to be:
+This is not intended to be:
 
-- A formal or official assessment of organisational performance.
-- A complete, up-to-date catalogue of all data strategies worldwide.
+- A formal or official assessment of organisational maturity.
+- A complete, up to date catalogue of all public sector data strategies.
 - An automatic strategy generator or replacement for professional judgement.
 - A benchmarking tool that compares your scores against other named organisations.
 
