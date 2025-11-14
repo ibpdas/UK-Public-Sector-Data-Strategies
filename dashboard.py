@@ -1465,43 +1465,50 @@ public sector data leaders.
          "https://www.oecd-ilibrary.org/economics/measuring-data-as-an-asset_b840fb01-en"),
     ]
 
-    # Helper to render resources as cards
+     # Helper to render resources as GOV.UK-style cards
     def render_resource_cards(resources, cols_per_row=3):
+
         for i in range(0, len(resources), cols_per_row):
             row_items = resources[i : i + cols_per_row]
             cols = st.columns(len(row_items))
+
             for col, (title, desc, url) in zip(cols, row_items):
                 with col:
                     st.markdown(
                         f"""
                         <div style="
-                            background-color: #0f172a;
-                            border-radius: 12px;
-                            padding: 16px 16px 14px 16px;
-                            margin-bottom: 12px;
-                            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.35);
-                            border: 1px solid rgba(148, 163, 184, 0.4);
+                            background-color: #ffffff;
+                            border: 1px solid #b1b4b6;  /* GOV.UK grey border */
+                            border-radius: 4px;
+                            padding: 16px;
+                            margin-bottom: 16px;
+                            font-family: 'GDS Transport', Arial, sans-serif;
                         ">
-                            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; margin-bottom: 6px;">
-                                Framework or case study
-                            </div>
-                            <div style="font-weight: 600; font-size: 0.95rem; color: #e5e7eb; margin-bottom: 6px;">
+                            <div style="
+                                font-weight: 700;
+                                font-size: 1rem;
+                                color: #0b0c0c;
+                                margin-bottom: 8px;
+                            ">
                                 {title}
                             </div>
-                            <div style="font-size: 0.85rem; color: #cbd5f5; margin-bottom: 10px;">
+
+                            <div style="
+                                font-size: 0.9rem;
+                                color: #505a5f; /* GOV.UK secondary text */
+                                margin-bottom: 12px;
+                                line-height: 1.35;
+                            ">
                                 {desc}
                             </div>
+
                             <a href="{url}" target="_blank" style="
-                                display: inline-flex;
-                                align-items: center;
-                                gap: 6px;
-                                font-size: 0.85rem;
-                                font-weight: 500;
-                                color: #38bdf8;
+                                font-size: 0.9rem;
+                                font-weight: 600;
+                                color: #1d70b8; /* GOV.UK link blue */
                                 text-decoration: none;
                             ">
-                                <span>Open resource</span>
-                                <span style="font-size: 0.9rem;">↗</span>
+                                Open resource →
                             </a>
                         </div>
                         """,
@@ -1509,7 +1516,6 @@ public sector data leaders.
                     )
 
     render_resource_cards(resources)
-
 # ====================================================
 # ℹ️ ABOUT
 # ====================================================
