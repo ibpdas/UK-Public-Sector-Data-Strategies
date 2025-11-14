@@ -607,7 +607,7 @@ with tab_home:
 <div class="card">
   <h3>Lenses &amp; Journey</h3>
   <p class="desc">
-    <strong>Step 1:</strong> Self-diagnose maturity using six government data themes.<br>
+    <strong>Step 1:</strong> Self-diagnose maturity using six government data maturity themes.<br>
     <strong>Step 2:</strong> Set <em>Current vs Target</em> positions across Ten Lenses.<br>
     <strong>Step 3:</strong> Use the Journey tab to see gaps, tensions and potential conflicts.
   </p>
