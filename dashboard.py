@@ -608,7 +608,7 @@ with tab_home:
     st.markdown(
         """
 <div class="info-panel">
-  <strong>What this is:</strong> A thinking and workshop tool for public sector data leaders —
+  <strong>What this is:</strong> A thinking and workshop tool for public sector data leaders
   to make <strong>maturity</strong>, <strong>strategic tensions</strong>, and <strong>priority shifts</strong> explicit.
   It will not write your strategy for you, but it will help you have a better conversation about it.
 </div>
